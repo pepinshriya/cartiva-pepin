@@ -31,3 +31,6 @@ npm-debug.log*
 
 # Deployment artifacts
 *.zip
+
+# Terraform
+infrastructure/terraform/**/.terraform/
