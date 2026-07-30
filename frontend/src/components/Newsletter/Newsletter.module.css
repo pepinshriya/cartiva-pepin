@@ -1,0 +1,161 @@
+.section {
+  padding: 80px 0;
+}
+
+.card {
+  position: relative;
+  background: var(--color-primary);
+  border-radius: var(--radius-xl);
+  padding: 64px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  max-width: 520px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 4px 14px;
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+
+.desc {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inputWrap {
+  display: flex;
+  background: #fff;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  padding: 5px;
+}
+
+.input {
+  flex: 1;
+  padding: 14px 18px;
+  border: none;
+  font-size: 0.95rem;
+  background: transparent;
+  min-width: 0;
+}
+
+.input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.submitBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: var(--color-text);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: var(--transition);
+}
+
+.submitBtn:hover {
+  background: #333;
+}
+
+.note {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.visual {
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 300px;
+  height: 300px;
+}
+
+.circle1 {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  top: 0;
+  right: 0;
+}
+
+.circle2 {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  bottom: 20px;
+  left: 20px;
+}
+
+.pattern {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  transform: rotate(45deg);
+  top: 60px;
+  right: 80px;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 40px 28px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .inputWrap {
+    flex-direction: column;
+    padding: 8px;
+  }
+
+  .submitBtn {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .visual {
+    display: none;
+  }
+}
