@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Box, Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Box,
+  Typography,
 } from '@mui/material';
 import { PackagePlus } from 'lucide-react';
 
@@ -50,7 +57,10 @@ const RestockDialog = ({ open, onClose, onConfirm, item, loading }) => {
             autoFocus
             slotProps={{ htmlInput: { min: 1 } }}
             value={quantity}
-            onChange={(e) => { setQuantity(e.target.value); setError(''); }}
+            onChange={(e) => {
+              setQuantity(e.target.value);
+              setError('');
+            }}
             error={Boolean(error)}
             helperText={error}
           />

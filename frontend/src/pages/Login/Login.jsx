@@ -36,15 +36,17 @@ const Login = () => {
           <p>Sign in to your Cartiva account</p>
         </div>
         {error && (
-          <div style={{
-            background: '#fef2f2',
-            color: '#dc2626',
-            padding: '10px 14px',
-            borderRadius: 8,
-            fontSize: 13,
-            marginBottom: 16,
-            border: '1px solid #fecaca',
-          }}>
+          <div
+            style={{
+              background: '#fef2f2',
+              color: '#dc2626',
+              padding: '10px 14px',
+              borderRadius: 8,
+              fontSize: 13,
+              marginBottom: 16,
+              border: '1px solid #fecaca',
+            }}
+          >
             {error}
           </div>
         )}
@@ -73,7 +75,11 @@ const Login = () => {
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 required
               />
-              <button type="button" className={styles.eyeBtn} onClick={() => setShowPassword(!showPassword)}>
+              <button
+                type="button"
+                className={styles.eyeBtn}
+                onClick={() => setShowPassword(!showPassword)}
+              >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
@@ -83,7 +89,7 @@ const Login = () => {
           </button>
         </form>
         <p className={styles.footer}>
-          Don't have an account? <Link to="/register">Create one</Link>
+          Don&apos;t have an account? <Link to="/register">Create one</Link>
         </p>
       </div>
     </div>

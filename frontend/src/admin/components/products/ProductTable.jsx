@@ -1,6 +1,17 @@
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  TableSortLabel, Paper, Skeleton, Box, Typography, IconButton, Avatar,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableSortLabel,
+  Paper,
+  Skeleton,
+  Box,
+  Typography,
+  IconButton,
+  Avatar,
 } from '@mui/material';
 import { Edit3, Trash2 } from 'lucide-react';
 import { useState, useMemo } from 'react';
@@ -36,7 +47,9 @@ const ProductTable = ({ products, loading, onEdit, onDelete }) => {
   };
 
   const sorted = useMemo(() => {
-    if (!products.length || !orderBy) return products;
+    if (!products.length || !orderBy) {
+      return products;
+    }
     return [...products].sort((a, b) => {
       const aVal = a[orderBy] ?? '';
       const bVal = b[orderBy] ?? '';
@@ -46,7 +59,9 @@ const ProductTable = ({ products, loading, onEdit, onDelete }) => {
   }, [products, orderBy, orderDir]);
 
   const renderImage = (src) => {
-    if (!src) return <Avatar variant="rounded" sx={{ width: 40, height: 40, bgcolor: '#f1f5f9' }} />;
+    if (!src) {
+      return <Avatar variant="rounded" sx={{ width: 40, height: 40, bgcolor: '#f1f5f9' }} />;
+    }
     return (
       <Avatar
         variant="rounded"
@@ -85,7 +100,9 @@ const ProductTable = ({ products, loading, onEdit, onDelete }) => {
 
   if (!products.length) {
     return (
-      <Paper sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}>
+      <Paper
+        sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}
+      >
         <Typography color="text.secondary">No products found.</Typography>
       </Paper>
     );
@@ -132,12 +149,20 @@ const ProductTable = ({ products, loading, onEdit, onDelete }) => {
                   <Typography variant="body2" fontWeight={500}>
                     {product.name}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', md: 'block' } }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: { xs: 'none', md: 'block' } }}
+                  >
                     ID: {product.productId}
                   </Typography>
                 </TableCell>
-                <TableCell sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>
-                  {product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : '—'}
+                <TableCell
+                  sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}
+                >
+                  {product.category
+                    ? product.category.charAt(0).toUpperCase() + product.category.slice(1)
+                    : '—'}
                 </TableCell>
                 <TableCell sx={{ fontSize: 13 }}>
                   <Typography variant="body2" fontWeight={600}>

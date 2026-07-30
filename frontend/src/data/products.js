@@ -2,9 +2,10 @@ export const products = [
   {
     id: '1',
     name: 'Premium Cotton Oversized Tee',
-    description: 'Crafted from 100% organic cotton with a relaxed oversized fit. Minimalist design meets premium quality.',
-    price: 89.00,
-    originalPrice: 120.00,
+    description:
+      'Crafted from 100% organic cotton with a relaxed oversized fit. Minimalist design meets premium quality.',
+    price: 89.0,
+    originalPrice: 120.0,
     category: 'clothing',
     subcategory: 'tshirts',
     image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=750&fit=crop',
@@ -25,8 +26,9 @@ export const products = [
   {
     id: '2',
     name: 'Minimal Leather Crossbody Bag',
-    description: 'Hand-stitched genuine leather crossbody with adjustable strap. Timeless design for everyday carry.',
-    price: 195.00,
+    description:
+      'Hand-stitched genuine leather crossbody with adjustable strap. Timeless design for everyday carry.',
+    price: 195.0,
     originalPrice: null,
     category: 'accessories',
     subcategory: 'bags',
@@ -47,9 +49,10 @@ export const products = [
   {
     id: '3',
     name: 'Relaxed Fit Chino Pants',
-    description: 'Premium twill chinos with a relaxed taper. Perfect blend of comfort and refined style.',
-    price: 120.00,
-    originalPrice: 160.00,
+    description:
+      'Premium twill chinos with a relaxed taper. Perfect blend of comfort and refined style.',
+    price: 120.0,
+    originalPrice: 160.0,
     category: 'clothing',
     subcategory: 'pants',
     image: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600&h=750&fit=crop',
@@ -69,8 +72,9 @@ export const products = [
   {
     id: '4',
     name: 'Classic Leather Sneakers',
-    description: 'Italian leather upper with memory foam insole. Clean silhouette that pairs with everything.',
-    price: 245.00,
+    description:
+      'Italian leather upper with memory foam insole. Clean silhouette that pairs with everything.',
+    price: 245.0,
     originalPrice: null,
     category: 'footwear',
     subcategory: 'sneakers',
@@ -91,8 +95,9 @@ export const products = [
   {
     id: '5',
     name: 'Organic Linen Blend Shirt',
-    description: 'Breathable linen-cotton blend with a modern relaxed fit. Perfect for warm weather layering.',
-    price: 110.00,
+    description:
+      'Breathable linen-cotton blend with a modern relaxed fit. Perfect for warm weather layering.',
+    price: 110.0,
     originalPrice: null,
     category: 'clothing',
     subcategory: 'shirts',
@@ -113,9 +118,10 @@ export const products = [
   {
     id: '6',
     name: 'Structured Wool Blazer',
-    description: 'Tailored blazer in premium wool blend. sharp lines with a contemporary relaxed shoulder.',
-    price: 340.00,
-    originalPrice: 450.00,
+    description:
+      'Tailored blazer in premium wool blend. sharp lines with a contemporary relaxed shoulder.',
+    price: 340.0,
+    originalPrice: 450.0,
     category: 'clothing',
     subcategory: 'outerwear',
     image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&h=750&fit=crop',
@@ -135,15 +141,14 @@ export const products = [
   {
     id: '7',
     name: 'Canvas Weekender Bag',
-    description: 'Heavy-duty canvas with leather trim. Spacious interior with dedicated shoe compartment.',
-    price: 165.00,
+    description:
+      'Heavy-duty canvas with leather trim. Spacious interior with dedicated shoe compartment.',
+    price: 165.0,
     originalPrice: null,
     category: 'accessories',
     subcategory: 'bags',
     image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=750&fit=crop',
-    images: [
-      'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=1000&fit=crop',
-    ],
+    images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&h=1000&fit=crop'],
     rating: 4.7,
     reviews: 198,
     badge: null,
@@ -156,15 +161,14 @@ export const products = [
   {
     id: '8',
     name: 'Slim Fit Denim Jacket',
-    description: 'Japanese selvedge denim with a slim modern cut. Classic trucker style updated for today.',
-    price: 185.00,
-    originalPrice: 230.00,
+    description:
+      'Japanese selvedge denim with a slim modern cut. Classic trucker style updated for today.',
+    price: 185.0,
+    originalPrice: 230.0,
     category: 'clothing',
     subcategory: 'outerwear',
     image: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=600&h=750&fit=crop',
-    images: [
-      'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=800&h=1000&fit=crop',
-    ],
+    images: ['https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=800&h=1000&fit=crop'],
     rating: 4.6,
     reviews: 134,
     badge: 'Sale',

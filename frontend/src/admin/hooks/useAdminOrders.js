@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import {
-  getOrders,
-  updateOrderStatus,
-  getOrderTimeline,
-} from '../../services/orderService';
+import { getOrders, updateOrderStatus, getOrderTimeline } from '../../services/orderService';
 
 const useAdminOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -98,7 +94,9 @@ const useAdminOrders = () => {
   };
 
   const handleUpdateStatus = async (newStatus, note) => {
-    if (!selectedOrder) return;
+    if (!selectedOrder) {
+      return;
+    }
     setStatusUpdateLoading(true);
     try {
       const updated = await updateOrderStatus(selectedOrder.orderId, newStatus, note);

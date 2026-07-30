@@ -70,7 +70,8 @@ const appendTimeline = async (orderId, entry) => {
   const command = new UpdateCommand({
     TableName: TABLE_NAME,
     Key: { orderId },
-    UpdateExpression: 'SET statusHistory = list_append(if_not_exists(statusHistory, :empty), :entry)',
+    UpdateExpression:
+      'SET statusHistory = list_append(if_not_exists(statusHistory, :empty), :entry)',
     ExpressionAttributeValues: {
       ':entry': [entry],
       ':empty': [],

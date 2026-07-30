@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions, Button,
-  FormControl, InputLabel, Select, MenuItem, TextField, Box, Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Box,
+  Typography,
 } from '@mui/material';
 import { ArrowUpDown } from 'lucide-react';
 
@@ -53,7 +63,10 @@ const UpdateStatusDialog = ({ open, onClose, onConfirm, order, loading }) => {
             <Select
               value={newStatus}
               label="New Status"
-              onChange={(e) => { setNewStatus(e.target.value); setError(''); }}
+              onChange={(e) => {
+                setNewStatus(e.target.value);
+                setError('');
+              }}
               error={Boolean(error)}
             >
               {STATUS_OPTIONS.map((s) => (
@@ -65,7 +78,9 @@ const UpdateStatusDialog = ({ open, onClose, onConfirm, order, loading }) => {
           </FormControl>
 
           {error && (
-            <Typography variant="caption" color="error">{error}</Typography>
+            <Typography variant="caption" color="error">
+              {error}
+            </Typography>
           )}
 
           <TextField

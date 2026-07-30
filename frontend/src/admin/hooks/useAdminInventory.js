@@ -65,9 +65,7 @@ const useAdminInventory = () => {
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(
-        (p) =>
-          p.productName?.toLowerCase().includes(q) ||
-          p.sku?.toLowerCase().includes(q)
+        (p) => p.productName?.toLowerCase().includes(q) || p.sku?.toLowerCase().includes(q)
       );
     }
     if (lowStockOnly) {
@@ -87,7 +85,9 @@ const useAdminInventory = () => {
   };
 
   const handleRestock = async (quantity, note) => {
-    if (!restockItemData) return;
+    if (!restockItemData) {
+      return;
+    }
     setRestockLoading(true);
     try {
       const updated = await restockItem(restockItemData.productId, quantity, note);
@@ -113,7 +113,9 @@ const useAdminInventory = () => {
   };
 
   const handleAdjust = async (quantity, reason) => {
-    if (!adjustItemData) return;
+    if (!adjustItemData) {
+      return;
+    }
     setAdjustLoading(true);
     try {
       const updated = await adjustStock(adjustItemData.productId, quantity, reason);

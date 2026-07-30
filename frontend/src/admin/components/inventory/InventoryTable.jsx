@@ -1,6 +1,16 @@
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Skeleton, Box, Typography, IconButton, Tooltip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Skeleton,
+  Box,
+  Typography,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { PackagePlus, Pencil, History } from 'lucide-react';
 import InventoryStatusChip from './InventoryStatusChip';
@@ -27,10 +37,14 @@ const RowSkeleton = () => (
 );
 
 const formatDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) {
+    return '—';
+  }
   try {
     return new Date(iso).toLocaleDateString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
   } catch {
     return iso;
@@ -65,7 +79,9 @@ const InventoryTable = ({ items, loading, onRestock, onAdjust, onHistory }) => {
 
   if (!items.length) {
     return (
-      <Paper sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}>
+      <Paper
+        sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}
+      >
         <Typography color="text.secondary">No inventory items found.</Typography>
       </Paper>
     );
@@ -105,10 +121,14 @@ const InventoryTable = ({ items, loading, onRestock, onAdjust, onHistory }) => {
                       {item.sku}
                     </Typography>
                   </TableCell>
-                  <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>
-                    {item.currentStock}
-                  </TableCell>
-                  <TableCell sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>
+                  <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>{item.currentStock}</TableCell>
+                  <TableCell
+                    sx={{
+                      fontSize: 13,
+                      color: '#64748b',
+                      display: { xs: 'none', md: 'table-cell' },
+                    }}
+                  >
                     {item.reservedStock}
                   </TableCell>
                   <TableCell
@@ -121,13 +141,25 @@ const InventoryTable = ({ items, loading, onRestock, onAdjust, onHistory }) => {
                   >
                     {available}
                   </TableCell>
-                  <TableCell sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>
+                  <TableCell
+                    sx={{
+                      fontSize: 13,
+                      color: '#64748b',
+                      display: { xs: 'none', md: 'table-cell' },
+                    }}
+                  >
                     {item.threshold}
                   </TableCell>
                   <TableCell sx={{ fontSize: 13 }}>
                     <InventoryStatusChip stock={item.currentStock} threshold={item.threshold} />
                   </TableCell>
-                  <TableCell sx={{ fontSize: 12, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>
+                  <TableCell
+                    sx={{
+                      fontSize: 12,
+                      color: '#64748b',
+                      display: { xs: 'none', md: 'table-cell' },
+                    }}
+                  >
                     {formatDate(item.lastUpdated)}
                   </TableCell>
                   <TableCell sx={{ fontSize: 13 }}>

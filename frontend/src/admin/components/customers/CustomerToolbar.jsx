@@ -1,6 +1,4 @@
-import {
-  TextField, Select, MenuItem, InputLabel, FormControl, Box,
-} from '@mui/material';
+import { TextField, Select, MenuItem, InputLabel, FormControl, Box } from '@mui/material';
 import { Search } from 'lucide-react';
 
 const STATUSES = ['', 'ACTIVE', 'INACTIVE', 'BLOCKED'];

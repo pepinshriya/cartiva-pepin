@@ -9,7 +9,6 @@ jest.mock('../events/order.publisher');
 jest.mock('uuid', () => ({ v4: () => 'fixed-order-id' }));
 
 describe('placeOrder', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -45,7 +44,6 @@ describe('placeOrder', () => {
     expect(orderRepository.create).not.toHaveBeenCalled();
     expect(orderPublisher.publishOrderCreated).not.toHaveBeenCalled();
   });
-
 });
 
 describe('getOrder', () => {
@@ -182,7 +180,9 @@ describe('updateOrderStatus', () => {
   });
 
   it('should throw 400 when status is invalid', async () => {
-    await expect(orderService.updateOrderStatus('o1', 'NOT_A_REAL_STATUS', 'note')).rejects.toMatchObject({
+    await expect(
+      orderService.updateOrderStatus('o1', 'NOT_A_REAL_STATUS', 'note')
+    ).rejects.toMatchObject({
       statusCode: 400,
     });
   });

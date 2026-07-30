@@ -1,10 +1,10 @@
-import axios from "axios";
-import { getAccessToken } from "../../auth/cognitoService";
-import API_CONFIG from "../../config/api";
+import axios from 'axios';
+import { getAccessToken } from '../../auth/cognitoService';
+import API_CONFIG from '../../config/api';
 
 const customersApi = axios.create({
   baseURL: API_CONFIG.customers.baseURL,
-  headers: { "Content-Type": "application/json" },
+  headers: { 'Content-Type': 'application/json' },
 });
 
 customersApi.interceptors.request.use(
@@ -26,7 +26,7 @@ customersApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      window.location.href = "/login";
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

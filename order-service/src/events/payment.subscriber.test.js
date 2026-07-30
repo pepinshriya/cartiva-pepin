@@ -10,14 +10,16 @@ const buildSnsEvent = (messages) => ({
 });
 
 describe('payment.subscriber handler', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('should update order to CONFIRMED/PAID on PAYMENT_COMPLETED', async () => {
     const event = buildSnsEvent([
-      { eventType: 'PAYMENT_COMPLETED', data: { orderId: 'o1', paymentId: 'pay1', paymentStatus: 'PAID', timestamp: 'now' } },
+      {
+        eventType: 'PAYMENT_COMPLETED',
+        data: { orderId: 'o1', paymentId: 'pay1', paymentStatus: 'PAID', timestamp: 'now' },
+      },
     ]);
     orderService.updateOrderPaymentStatus.mockResolvedValue({});
 
@@ -32,7 +34,10 @@ describe('payment.subscriber handler', () => {
 
   it('should update order to PAYMENT_FAILED/FAILED on PAYMENT_FAILED', async () => {
     const event = buildSnsEvent([
-      { eventType: 'PAYMENT_FAILED', data: { orderId: 'o2', paymentId: 'pay2', reason: 'card declined' } },
+      {
+        eventType: 'PAYMENT_FAILED',
+        data: { orderId: 'o2', paymentId: 'pay2', reason: 'card declined' },
+      },
     ]);
     orderService.updateOrderPaymentStatus.mockResolvedValue({});
 
@@ -58,14 +63,11 @@ describe('payment.subscriber handler', () => {
   });
 
   it('should do nothing for an unknown event type', async () => {
-    const event = buildSnsEvent([
-      { eventType: 'SOMETHING_ELSE', data: { orderId: 'o1' } },
-    ]);
+    const event = buildSnsEvent([{ eventType: 'SOMETHING_ELSE', data: { orderId: 'o1' } }]);
 
     const result = await handler(event);
 
     expect(orderService.updateOrderPaymentStatus).not.toHaveBeenCalled();
     expect(result).toEqual({ statusCode: 200 });
   });
-
 });

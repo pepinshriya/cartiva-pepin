@@ -1,7 +1,17 @@
 import { useState, useEffect } from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField,
-  FormControl, InputLabel, Select, MenuItem, Box, Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
+  Typography,
 } from '@mui/material';
 import { Pencil } from 'lucide-react';
 
@@ -67,7 +77,10 @@ const AdjustmentDialog = ({ open, onClose, onConfirm, item, loading }) => {
             autoFocus
             slotProps={{ htmlInput: { min: -99999, max: 99999 } }}
             value={quantity}
-            onChange={(e) => { setQuantity(e.target.value); setError(''); }}
+            onChange={(e) => {
+              setQuantity(e.target.value);
+              setError('');
+            }}
             error={Boolean(error)}
             helperText={
               error ||
@@ -82,11 +95,16 @@ const AdjustmentDialog = ({ open, onClose, onConfirm, item, loading }) => {
             <Select
               value={reason}
               label="Reason"
-              onChange={(e) => { setReason(e.target.value); setError(''); }}
+              onChange={(e) => {
+                setReason(e.target.value);
+                setError('');
+              }}
               error={Boolean(error && !reason)}
             >
               {REASONS.map((r) => (
-                <MenuItem key={r} value={r}>{r}</MenuItem>
+                <MenuItem key={r} value={r}>
+                  {r}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>

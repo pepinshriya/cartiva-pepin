@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ArrowRight } from 'lucide-react';
 
-import ProductCard from "../ProductCard/ProductCard";
-import { getProducts } from "../../services/productService";
+import ProductCard from '../ProductCard/ProductCard';
+import { getProducts } from '../../services/productService';
 
-import styles from "./TrendingProducts.module.css";
+import styles from './TrendingProducts.module.css';
 
 const TrendingProducts = () => {
   const [products, setProducts] = useState([]);
@@ -18,7 +18,7 @@ const TrendingProducts = () => {
         const data = await getProducts();
         setProducts(data);
       } catch (error) {
-        console.error("Failed to load products", error);
+        console.error('Failed to load products', error);
       } finally {
         setLoading(false);
       }
@@ -44,9 +44,7 @@ const TrendingProducts = () => {
         <div className={styles.header}>
           <div>
             <h2 className="section-title">Trending Now</h2>
-            <p className="section-subtitle">
-              Products from AWS Product Service
-            </p>
+            <p className="section-subtitle">Products from AWS Product Service</p>
           </div>
 
           <Link to="/shop" className={styles.viewAll}>

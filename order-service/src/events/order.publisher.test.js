@@ -6,7 +6,6 @@ const { publishOrderCreated } = require('./order.publisher');
 const snsMock = mockClient(snsClient);
 
 describe('publishOrderCreated', () => {
-
   beforeEach(() => {
     snsMock.reset();
   });
@@ -38,5 +37,4 @@ describe('publishOrderCreated', () => {
       },
     });
   });
-
 });

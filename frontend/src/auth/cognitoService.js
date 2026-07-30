@@ -1,4 +1,4 @@
-import "./cognitoConfig";
+import './cognitoConfig';
 import {
   signUp,
   signIn,
@@ -9,7 +9,7 @@ import {
   confirmResetPassword,
   confirmSignUp,
   resendSignUpCode,
-} from "aws-amplify/auth";
+} from 'aws-amplify/auth';
 
 export const register = async (name, email, password) => {
   const result = await signUp({

@@ -1,5 +1,5 @@
-const revenueService = require("../services/revenue.service");
-const response = require("../utils/response");
+const revenueService = require('../services/revenue.service');
+const response = require('../utils/response');
 
 const getRevenue = async (req, res, next) => {
   try {

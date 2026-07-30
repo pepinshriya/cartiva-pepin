@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+coverage/
+.serverless/
+.postman/
+postman/
+.github/
+*.zip
+*.yml
+*.yaml
+*.md
+*.json

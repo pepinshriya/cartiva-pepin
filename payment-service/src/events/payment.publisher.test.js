@@ -6,7 +6,6 @@ const { publishPaymentCompleted, publishPaymentFailed } = require('./payment.pub
 const snsMock = mockClient(snsClient);
 
 describe('payment.publisher', () => {
-
   beforeEach(() => {
     snsMock.reset();
   });
@@ -72,5 +71,4 @@ describe('payment.publisher', () => {
       expect(publishedMessage.data.reason).toBe('Payment processing failed');
     });
   });
-
 });

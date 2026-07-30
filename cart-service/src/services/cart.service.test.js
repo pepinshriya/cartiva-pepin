@@ -6,7 +6,6 @@ jest.mock('../repositories/cart.repository');
 jest.mock('../clients/product.client');
 
 describe('createCart', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -18,7 +17,11 @@ describe('createCart', () => {
     const result = await cartService.createCart({ userId: 'user1' });
 
     expect(result).toEqual({ userId: 'user1', items: [], totalPrice: 0 });
-    expect(cartRepository.create).toHaveBeenCalledWith({ userId: 'user1', items: [], totalPrice: 0 });
+    expect(cartRepository.create).toHaveBeenCalledWith({
+      userId: 'user1',
+      items: [],
+      totalPrice: 0,
+    });
   });
 
   it('should throw 409 when a cart already exists for the user', async () => {
@@ -28,11 +31,9 @@ describe('createCart', () => {
       statusCode: 409,
     });
   });
-
 });
 
 describe('getCart', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -53,11 +54,9 @@ describe('getCart', () => {
       statusCode: 404,
     });
   });
-
 });
 
 describe('addItem', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -111,11 +110,9 @@ describe('addItem', () => {
       cartService.addItem('user1', { productId: 'p1', quantity: 1 })
     ).rejects.toMatchObject({ statusCode: 404 });
   });
-
 });
 
 describe('removeItem', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -150,11 +147,9 @@ describe('removeItem', () => {
       statusCode: 404,
     });
   });
-
 });
 
 describe('updateItemQuantity', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -196,11 +191,9 @@ describe('updateItemQuantity', () => {
       cartService.updateItemQuantity('user1', 'p1', { quantity: 5 })
     ).rejects.toMatchObject({ statusCode: 404 });
   });
-
 });
 
 describe('clearCart', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -222,5 +215,4 @@ describe('clearCart', () => {
       statusCode: 404,
     });
   });
-
 });

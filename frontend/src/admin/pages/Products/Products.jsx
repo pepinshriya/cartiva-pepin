@@ -36,7 +36,13 @@ const Products = () => {
       <Typography
         variant="h5"
         fontWeight={700}
-        sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          mb: 3,
+          fontSize: { xs: '1.1rem', sm: '1.25rem' },
+        }}
       >
         <Package size={22} />
         Products

@@ -1,7 +1,17 @@
 import { TextField, Select, MenuItem, InputLabel, FormControl, Button, Box } from '@mui/material';
 import { Plus, Search } from 'lucide-react';
 
-const CATEGORIES = ['', 'clothing', 'accessories', 'footwear', 'outerwear', 'electronics', 'beauty', 'groceries', 'sports'];
+const CATEGORIES = [
+  '',
+  'clothing',
+  'accessories',
+  'footwear',
+  'outerwear',
+  'electronics',
+  'beauty',
+  'groceries',
+  'sports',
+];
 
 const ProductToolbar = ({ search, onSearchChange, category, onCategoryChange, onAdd }) => {
   return (

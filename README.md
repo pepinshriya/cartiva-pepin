@@ -16,13 +16,13 @@ Client  →  Product Service (3001)
 
 ## Services
 
-| Service | Port | Description |
-|---|---|---|
-| **product-service** | 3001 | Product catalog CRUD |
-| **inventory-service** | 3002 | Stock level management |
-| **cart-service** | 3003 | Shopping cart operations |
-| **order-service** | 3004 | Order lifecycle |
-| **payment-service** | 3005 | Payment processing |
+| Service               | Port | Description              |
+| --------------------- | ---- | ------------------------ |
+| **product-service**   | 3001 | Product catalog CRUD     |
+| **inventory-service** | 3002 | Stock level management   |
+| **cart-service**      | 3003 | Shopping cart operations |
+| **order-service**     | 3004 | Order lifecycle          |
+| **payment-service**   | 3005 | Payment processing       |
 
 ## Getting Started
 

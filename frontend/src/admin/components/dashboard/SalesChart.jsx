@@ -1,12 +1,20 @@
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
 } from 'recharts';
 import { useMediaQuery } from '@mui/material';
 
 const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload?.length) {
+    return null;
+  }
   return (
     <Box
       sx={{
@@ -23,7 +31,9 @@ const CustomTooltip = ({ active, payload, label }) => {
       </Typography>
       {payload.map((entry) => (
         <Typography key={entry.name} variant="caption" sx={{ display: 'block' }}>
-          {entry.name === 'revenue' ? `Revenue: $${entry.value.toLocaleString()}` : `Orders: ${entry.value}`}
+          {entry.name === 'revenue'
+            ? `Revenue: $${entry.value.toLocaleString()}`
+            : `Orders: ${entry.value}`}
         </Typography>
       ))}
     </Box>

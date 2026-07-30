@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Heart,
   ShoppingBag,
@@ -12,11 +12,11 @@ import {
   Plus,
   ChevronRight,
   Check,
-} from "lucide-react";
+} from 'lucide-react';
 
-import { getProductById } from "../../services/productService";
-import { useAppContext } from "../../context/AppContext";
-import styles from "./ProductDetails.module.css";
+import { getProductById } from '../../services/productService';
+import { useAppContext } from '../../context/AppContext';
+import styles from './ProductDetails.module.css';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -26,7 +26,7 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
 
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showToast, setShowToast] = useState(false);
@@ -41,7 +41,7 @@ const ProductDetails = () => {
           setSelectedSize(data.sizes[0]);
         }
       } catch (error) {
-        console.error("Failed to load product:", error);
+        console.error('Failed to load product:', error);
       } finally {
         setLoading(false);
       }
@@ -55,8 +55,8 @@ const ProductDetails = () => {
       <div
         className="container"
         style={{
-          padding: "120px 0",
-          textAlign: "center",
+          padding: '120px 0',
+          textAlign: 'center',
         }}
       >
         <h2>Loading Product...</h2>
@@ -69,8 +69,8 @@ const ProductDetails = () => {
       <div
         className="container"
         style={{
-          padding: "120px 0",
-          textAlign: "center",
+          padding: '120px 0',
+          textAlign: 'center',
         }}
       >
         <h2>Product not found</h2>
@@ -78,9 +78,9 @@ const ProductDetails = () => {
         <Link
           to="/shop"
           style={{
-            color: "var(--color-primary)",
+            color: 'var(--color-primary)',
             marginTop: 16,
-            display: "inline-block",
+            display: 'inline-block',
           }}
         >
           Back to Shop
@@ -122,7 +122,7 @@ const ProductDetails = () => {
                 <button
                   key={index}
                   className={`${styles.thumbnail} ${
-                    selectedImage === index ? styles.activeThumb : ""
+                    selectedImage === index ? styles.activeThumb : ''
                   }`}
                   onClick={() => setSelectedImage(index)}
                 >
@@ -137,16 +137,9 @@ const ProductDetails = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <img
-                src={product.images[selectedImage]}
-                alt={product.name}
-              />
+              <img src={product.images[selectedImage]} alt={product.name} />
 
-              {product.badge && (
-                <span className={styles.badge}>
-                  {product.badge}
-                </span>
-              )}
+              {product.badge && <span className={styles.badge}>{product.badge}</span>}
             </motion.div>
           </div>
 
@@ -154,28 +147,18 @@ const ProductDetails = () => {
             <h1 className={styles.name}>{product.name}</h1>
 
             <div className={styles.rating}>
-              <Star
-                size={16}
-                fill="#F59E0B"
-                color="#F59E0B"
-              />
+              <Star size={16} fill="#F59E0B" color="#F59E0B" />
 
               <span>{product.rating}</span>
 
-              <span className={styles.reviewCount}>
-                ({product.reviews} reviews)
-              </span>
+              <span className={styles.reviewCount}>({product.reviews} reviews)</span>
             </div>
 
             <div className={styles.priceRow}>
-              <span className={styles.price}>
-                ₹{product.price.toLocaleString()}
-              </span>
+              <span className={styles.price}>₹{product.price.toLocaleString()}</span>
             </div>
 
-            <p className={styles.description}>
-              {product.description}
-            </p>
+            <p className={styles.description}>{product.description}</p>
 
             <div className={styles.selector}>
               <label className={styles.label}>Color</label>
@@ -185,9 +168,7 @@ const ProductDetails = () => {
                   <button
                     key={index}
                     className={`${styles.colorSwatch} ${
-                      selectedColor === index
-                        ? styles.activeColor
-                        : ""
+                      selectedColor === index ? styles.activeColor : ''
                     }`}
                     style={{ backgroundColor: color }}
                     onClick={() => setSelectedColor(index)}
@@ -204,9 +185,7 @@ const ProductDetails = () => {
                   <button
                     key={size}
                     className={`${styles.sizeBtn} ${
-                      selectedSize === size
-                        ? styles.activeSize
-                        : ""
+                      selectedSize === size ? styles.activeSize : ''
                     }`}
                     onClick={() => setSelectedSize(size)}
                   >
@@ -217,24 +196,16 @@ const ProductDetails = () => {
             </div>
 
             <div className={styles.quantityRow}>
-              <label className={styles.label}>
-                Quantity
-              </label>
+              <label className={styles.label}>Quantity</label>
 
               <div className={styles.quantityControl}>
-                <button
-                  onClick={() =>
-                    setQuantity(Math.max(1, quantity - 1))
-                  }
-                >
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))}>
                   <Minus size={16} />
                 </button>
 
                 <span>{quantity}</span>
 
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                >
+                <button onClick={() => setQuantity(quantity + 1)}>
                   <Plus size={16} />
                 </button>
               </div>

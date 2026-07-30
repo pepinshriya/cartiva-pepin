@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Package, Clock, CheckCircle, ChevronRight, Loader2 } from 'lucide-react';
+import { Package, Clock, CheckCircle, Loader2 } from 'lucide-react';
 import { useAppContext } from '../../context/AppContext';
 import { getUserOrders } from '../../services/orderService';
 import styles from './Orders.module.css';
@@ -78,7 +78,9 @@ const Orders = () => {
             <Package size={64} color="#D1D5DB" />
             <h2>Please log in</h2>
             <p>Sign in to view your order history.</p>
-            <Link to="/login" className={styles.shopLink}>Sign In</Link>
+            <Link to="/login" className={styles.shopLink}>
+              Sign In
+            </Link>
           </div>
         </div>
       </div>
@@ -90,16 +92,16 @@ const Orders = () => {
       <div className="container">
         <h1 className={styles.title}>My Orders</h1>
 
-        {error && (
-          <div className={styles.errorBanner}>{error}</div>
-        )}
+        {error && <div className={styles.errorBanner}>{error}</div>}
 
         {orders.length === 0 ? (
           <div className={styles.empty}>
             <Package size={64} color="#D1D5DB" />
             <h2>No orders yet</h2>
             <p>When you place an order, it will appear here.</p>
-            <Link to="/shop" className={styles.shopLink}>Start Shopping</Link>
+            <Link to="/shop" className={styles.shopLink}>
+              Start Shopping
+            </Link>
           </div>
         ) : (
           <div className={styles.orders}>
@@ -118,7 +120,9 @@ const Orders = () => {
                       <Clock size={14} /> {formatDate(order.createdAt)}
                     </span>
                   </div>
-                  <span className={`${styles.status} ${statusColors[order.status] || styles.processing}`}>
+                  <span
+                    className={`${styles.status} ${statusColors[order.status] || styles.processing}`}
+                  >
                     <CheckCircle size={14} /> {statusLabels[order.status] || order.status}
                   </span>
                 </div>
@@ -135,9 +139,7 @@ const Orders = () => {
                 </div>
                 <div className={styles.orderFooter}>
                   <span className={styles.total}>Total: ${order.totalAmount.toFixed(2)}</span>
-                  <span className={styles.paymentStatus}>
-                    Payment: {order.paymentStatus}
-                  </span>
+                  <span className={styles.paymentStatus}>Payment: {order.paymentStatus}</span>
                 </div>
               </motion.div>
             ))}

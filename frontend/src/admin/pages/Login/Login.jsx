@@ -29,11 +29,7 @@ const Login = () => {
   if (loading) {
     return (
       <div className={styles.page}>
-        <Loader2
-          size={40}
-          color="#94a3b8"
-          style={{ animation: 'spin 1s linear infinite' }}
-        />
+        <Loader2 size={40} color="#94a3b8" style={{ animation: 'spin 1s linear infinite' }} />
       </div>
     );
   }
@@ -72,9 +68,7 @@ const Login = () => {
         </div>
 
         <h1 className={styles.title}>Admin Login</h1>
-        <p className={styles.subtitle}>
-          Sign in with your admin credentials
-        </p>
+        <p className={styles.subtitle}>Sign in with your admin credentials</p>
 
         <form onSubmit={handleSubmit}>
           <div className={styles.field}>
@@ -113,11 +107,7 @@ const Login = () => {
 
           {error && <p className={styles.error}>{error}</p>}
 
-          <button
-            className={styles.submitBtn}
-            type="submit"
-            disabled={submitting}
-          >
+          <button className={styles.submitBtn} type="submit" disabled={submitting}>
             {submitting ? 'Signing in…' : 'Sign In'}
           </button>
         </form>

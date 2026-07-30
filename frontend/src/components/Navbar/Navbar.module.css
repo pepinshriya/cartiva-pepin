@@ -303,8 +303,8 @@
     display: flex;
   }
 
-  .iconBtn[aria-label="Wishlist"],
-  .iconBtn[aria-label="Account"] {
+  .iconBtn[aria-label='Wishlist'],
+  .iconBtn[aria-label='Account'] {
     display: none;
   }
 }

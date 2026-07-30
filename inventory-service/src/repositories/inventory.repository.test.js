@@ -6,7 +6,6 @@ const inventoryRepository = require('./inventory.repository');
 const ddbMock = mockClient(docClient);
 
 describe('inventory.repository', () => {
-
   beforeEach(() => {
     ddbMock.reset();
   });
@@ -60,5 +59,4 @@ describe('inventory.repository', () => {
       expect(result).toEqual([{ productId: 'p1' }, { productId: 'p2' }]);
     });
   });
-
 });

@@ -58,8 +58,10 @@ const Cart = () => {
         <div className="container" style={{ textAlign: 'center', padding: '120px 24px' }}>
           <ShoppingBag size={64} color="#D1D5DB" />
           <h2>Your cart is empty</h2>
-          <p>Looks like you haven't added anything yet.</p>
-          <Link to="/shop" className={styles.shopLink}>Start Shopping</Link>
+          <p>Looks like you haven&apos;t added anything yet.</p>
+          <Link to="/shop" className={styles.shopLink}>
+            Start Shopping
+          </Link>
         </div>
       </div>
     );
@@ -85,7 +87,9 @@ const Cart = () => {
                     <img src={item.image} alt={item.name} />
                   </Link>
                   <div className={styles.itemInfo}>
-                    <Link to={`/product/${item.productId || item.id}`} className={styles.itemName}>{item.name}</Link>
+                    <Link to={`/product/${item.productId || item.id}`} className={styles.itemName}>
+                      {item.name}
+                    </Link>
                     <div className={styles.itemMeta}>
                       <span>Size: {item.size}</span>
                       <span className={styles.colorDot} style={{ backgroundColor: item.color }} />
@@ -95,24 +99,33 @@ const Cart = () => {
                         <button
                           onClick={() => handleUpdateQuantity(item, item.quantity - 1)}
                           disabled={updatingItemId === (item.productId || item.id)}
-                          className={updatingItemId === (item.productId || item.id) ? styles.disabledBtn : ''}
+                          className={
+                            updatingItemId === (item.productId || item.id) ? styles.disabledBtn : ''
+                          }
                         >
                           <Minus size={14} />
                         </button>
-                        <span>{updatingItemId === (item.productId || item.id) ? <Loader2 size={14} className={styles.spinIcon} /> : item.quantity}</span>
+                        <span>
+                          {updatingItemId === (item.productId || item.id) ? (
+                            <Loader2 size={14} className={styles.spinIcon} />
+                          ) : (
+                            item.quantity
+                          )}
+                        </span>
                         <button
                           onClick={() => handleUpdateQuantity(item, item.quantity + 1)}
                           disabled={updatingItemId === (item.productId || item.id)}
-                          className={updatingItemId === (item.productId || item.id) ? styles.disabledBtn : ''}
+                          className={
+                            updatingItemId === (item.productId || item.id) ? styles.disabledBtn : ''
+                          }
                         >
                           <Plus size={14} />
                         </button>
                       </div>
-                      <span className={styles.itemPrice}>${(item.price * item.quantity).toFixed(2)}</span>
-                      <button
-                        className={styles.removeBtn}
-                        onClick={() => handleRemoveItem(item)}
-                      >
+                      <span className={styles.itemPrice}>
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </span>
+                      <button className={styles.removeBtn} onClick={() => handleRemoveItem(item)}>
                         <Trash2 size={16} />
                       </button>
                     </div>
@@ -133,7 +146,9 @@ const Cart = () => {
               <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
             </div>
             {shipping > 0 && (
-              <p className={styles.freeShippingHint}>Add ${(100 - subtotal).toFixed(2)} more for free shipping</p>
+              <p className={styles.freeShippingHint}>
+                Add ${(100 - subtotal).toFixed(2)} more for free shipping
+              </p>
             )}
             <div className={`${styles.summaryRow} ${styles.totalRow}`}>
               <span>Total</span>
@@ -149,7 +164,9 @@ const Cart = () => {
                 <ArrowRight size={18} />
               </motion.button>
             </Link>
-            <Link to="/shop" className={styles.continueLink}>Continue Shopping</Link>
+            <Link to="/shop" className={styles.continueLink}>
+              Continue Shopping
+            </Link>
           </div>
         </div>
       </div>

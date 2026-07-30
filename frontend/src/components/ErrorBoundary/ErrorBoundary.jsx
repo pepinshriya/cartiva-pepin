@@ -17,15 +17,17 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 24,
-          fontFamily: 'system-ui, sans-serif',
-          textAlign: 'center',
-        }}>
+        <div
+          style={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24,
+            fontFamily: 'system-ui, sans-serif',
+            textAlign: 'center',
+          }}
+        >
           <div style={{ maxWidth: 480 }}>
             <h1 style={{ fontSize: '1.5rem', marginBottom: 12 }}>Something went wrong</h1>
             <p style={{ color: '#666', marginBottom: 20, lineHeight: 1.5 }}>

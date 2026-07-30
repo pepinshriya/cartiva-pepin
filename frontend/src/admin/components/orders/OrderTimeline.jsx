@@ -4,10 +4,15 @@ import { Circle, CircleCheck, CircleDot } from 'lucide-react';
 const TIMELINE_ORDER = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED'];
 
 const formatDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) {
+    return '—';
+  }
   try {
     return new Date(iso).toLocaleString('en-US', {
-      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   } catch {
     return iso;
@@ -40,8 +45,12 @@ const TimelineEntry = ({ status, timestamp, note, performedBy, isActive, isLast,
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Box
           sx={{
-            width: 28, height: 28, borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             bgcolor: isActive || isCancelled ? `${activeColor}15` : '#f1f5f9',
             color: isActive || isCancelled ? activeColor : '#94a3b8',
             zIndex: 1,
@@ -52,7 +61,9 @@ const TimelineEntry = ({ status, timestamp, note, performedBy, isActive, isLast,
         {!isLast && (
           <Box
             sx={{
-              width: 2, flex: 1, minHeight: 24,
+              width: 2,
+              flex: 1,
+              minHeight: 24,
               bgcolor: isActive ? activeColor : '#e2e8f0',
             }}
           />
@@ -60,7 +71,11 @@ const TimelineEntry = ({ status, timestamp, note, performedBy, isActive, isLast,
       </Box>
 
       <Box sx={{ flex: 1, pb: isLast ? 0 : 1 }}>
-        <Typography variant="body2" fontWeight={600} sx={{ color: isActive || isCancelled ? undefined : '#64748b' }}>
+        <Typography
+          variant="body2"
+          fontWeight={600}
+          sx={{ color: isActive || isCancelled ? undefined : '#64748b' }}
+        >
           {label}
         </Typography>
         {timestamp && (
@@ -121,12 +136,7 @@ const OrderTimeline = ({ events, loading, currentStatus }) => {
           />
         ))}
         {isCancelled && currentIdx < 0 && (
-          <TimelineEntry
-            status="CANCELLED"
-            isActive
-            isLast
-            isCancelled
-          />
+          <TimelineEntry status="CANCELLED" isActive isLast isCancelled />
         )}
       </Box>
     );

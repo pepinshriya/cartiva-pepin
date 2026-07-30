@@ -91,15 +91,9 @@ const Reports = () => {
         </Box>
       )}
 
-      {reportType === 'sales' && (
-        <SalesReportTable data={data} loading={loading} />
-      )}
-      {reportType === 'inventory' && (
-        <InventoryReportTable data={data} loading={loading} />
-      )}
-      {reportType === 'customers' && (
-        <CustomerReportTable data={data} loading={loading} />
-      )}
+      {reportType === 'sales' && <SalesReportTable data={data} loading={loading} />}
+      {reportType === 'inventory' && <InventoryReportTable data={data} loading={loading} />}
+      {reportType === 'customers' && <CustomerReportTable data={data} loading={loading} />}
 
       <Snackbar
         open={snackbar.open}

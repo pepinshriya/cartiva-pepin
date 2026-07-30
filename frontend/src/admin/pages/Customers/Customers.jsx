@@ -51,11 +51,7 @@ const Customers = () => {
         onStatusChange={setStatusFilter}
       />
 
-      <CustomerTable
-        customers={customers}
-        loading={loading}
-        onViewDetails={openDetailsDrawer}
-      />
+      <CustomerTable customers={customers} loading={loading} onViewDetails={openDetailsDrawer} />
 
       <CustomerDetailsDrawer
         open={drawerOpen}

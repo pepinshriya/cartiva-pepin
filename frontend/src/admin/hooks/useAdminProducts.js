@@ -55,9 +55,7 @@ const useAdminProducts = () => {
     if (search) {
       const q = search.toLowerCase();
       result = result.filter(
-        (p) =>
-          p.name?.toLowerCase().includes(q) ||
-          p.productId?.toLowerCase().includes(q)
+        (p) => p.name?.toLowerCase().includes(q) || p.productId?.toLowerCase().includes(q)
       );
     }
     if (category) {
@@ -109,7 +107,9 @@ const useAdminProducts = () => {
   };
 
   const handleDelete = async () => {
-    if (!deletingProduct) return;
+    if (!deletingProduct) {
+      return;
+    }
     setDeleteLoading(true);
     try {
       await deleteProduct(deletingProduct.productId);

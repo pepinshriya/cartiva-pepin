@@ -39,13 +39,23 @@ describe('createPayment', () => {
 
   it('should throw 400 when paymentMethod is invalid', async () => {
     await expect(
-      paymentService.createPayment({ orderId: 'o1', userId: 'user1', amount: 200, paymentMethod: 'CASH' })
+      paymentService.createPayment({
+        orderId: 'o1',
+        userId: 'user1',
+        amount: 200,
+        paymentMethod: 'CASH',
+      })
     ).rejects.toMatchObject({ statusCode: 400 });
   });
 
   it('should throw 400 when amount is not positive', async () => {
     await expect(
-      paymentService.createPayment({ orderId: 'o1', userId: 'user1', amount: -50, paymentMethod: 'CREDIT_CARD' })
+      paymentService.createPayment({
+        orderId: 'o1',
+        userId: 'user1',
+        amount: -50,
+        paymentMethod: 'CREDIT_CARD',
+      })
     ).rejects.toMatchObject({ statusCode: 400 });
   });
 });

@@ -29,11 +29,7 @@ const validateCartItem = (data) => {
   const required = ['productId', 'quantity'];
 
   for (const field of required) {
-    if (
-      data[field] === undefined ||
-      data[field] === null ||
-      data[field] === ''
-    ) {
+    if (data[field] === undefined || data[field] === null || data[field] === '') {
       throw {
         statusCode: 400,
         message: `Missing required field: ${field}`,
@@ -78,4 +74,10 @@ const validateUpdateQuantity = (data) => {
   }
 };
 
-module.exports = { validateUserId, validateCartData, validateCartItem, validateProductId, validateUpdateQuantity };
+module.exports = {
+  validateUserId,
+  validateCartData,
+  validateCartItem,
+  validateProductId,
+  validateUpdateQuantity,
+};

@@ -1,5 +1,5 @@
-const inventoryRepository = require("../repositories/inventory.repository");
-const productRepository = require("../repositories/product.repository");
+const inventoryRepository = require('../repositories/inventory.repository');
+const productRepository = require('../repositories/product.repository');
 
 const getLowStock = async () => {
   const [inventory, products] = await Promise.all([
@@ -13,16 +13,13 @@ const getLowStock = async () => {
   }
 
   const low = inventory
-    .filter(
-      (item) =>
-        (item.currentStock ?? item.stock ?? 0) <= (item.threshold || 0)
-    )
+    .filter((item) => (item.currentStock ?? item.stock ?? 0) <= (item.threshold || 0))
     .map((item) => {
       const product = productMap[item.productId || item.id] || {};
       return {
         productId: item.productId || item.id,
-        name: product.name || "Unknown Product",
-        category: product.category || "",
+        name: product.name || 'Unknown Product',
+        category: product.category || '',
         currentStock: item.currentStock ?? item.stock ?? 0,
         threshold: item.threshold || 0,
         lastUpdated: item.lastUpdated || item.updatedAt || null,

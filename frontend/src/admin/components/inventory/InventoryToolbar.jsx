@@ -34,7 +34,9 @@ const InventoryToolbar = ({ search, onSearchChange, lowStockOnly, onLowStockChan
           />
         }
         label={
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 14, color: '#64748b' }}>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 14, color: '#64748b' }}
+          >
             <AlertTriangle size={15} />
             Low stock only
           </Box>

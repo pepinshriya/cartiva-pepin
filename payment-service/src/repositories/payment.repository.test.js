@@ -6,7 +6,6 @@ const paymentRepository = require('./payment.repository');
 const ddbMock = mockClient(docClient);
 
 describe('payment.repository', () => {
-
   beforeEach(() => {
     ddbMock.reset();
   });
@@ -68,5 +67,4 @@ describe('payment.repository', () => {
       expect(result).toEqual({ paymentId: 'pay1', status: 'SUCCESS' });
     });
   });
-
 });

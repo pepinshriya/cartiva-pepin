@@ -1,7 +1,11 @@
 const { v4: uuidv4 } = require('uuid');
 const paymentRepository = require('../repositories/payment.repository');
 const PaymentModel = require('../models/payment.model');
-const { validatePaymentId, validatePaymentData, validatePaymentStatus } = require('../utils/validator');
+const {
+  validatePaymentId,
+  validatePaymentData,
+  validatePaymentStatus,
+} = require('../utils/validator');
 
 const createPayment = async (data) => {
   validatePaymentData(data);
@@ -62,4 +66,10 @@ const createPaymentFromOrder = async ({ orderId, userId, amount }) => {
 
   return await paymentRepository.create(payment);
 };
-module.exports = { createPayment, getPayment, getPaymentByOrder, updatePaymentStatus, createPaymentFromOrder };
+module.exports = {
+  createPayment,
+  getPayment,
+  getPaymentByOrder,
+  updatePaymentStatus,
+  createPaymentFromOrder,
+};

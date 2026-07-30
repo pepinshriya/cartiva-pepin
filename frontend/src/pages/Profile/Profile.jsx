@@ -45,8 +45,14 @@ const Profile = () => {
               <div className={styles.card} style={{ textAlign: 'center', padding: '80px 32px' }}>
                 <User size={64} color="#D1D5DB" />
                 <h2 style={{ marginTop: 16 }}>Please log in</h2>
-                <p style={{ color: 'var(--color-text-secondary)' }}>Sign in to view and edit your profile.</p>
-                <Link to="/login" className={styles.saveBtn} style={{ display: 'inline-block', marginTop: 20, textDecoration: 'none' }}>
+                <p style={{ color: 'var(--color-text-secondary)' }}>
+                  Sign in to view and edit your profile.
+                </p>
+                <Link
+                  to="/login"
+                  className={styles.saveBtn}
+                  style={{ display: 'inline-block', marginTop: 20, textDecoration: 'none' }}
+                >
                   Sign In
                 </Link>
               </div>
@@ -94,7 +100,12 @@ const Profile = () => {
               </div>
               <div className={styles.field}>
                 <label>Cognito User ID</label>
-                <input type="text" defaultValue={user.sub || ''} readOnly style={{ color: 'var(--color-text-secondary)', fontSize: '0.8rem' }} />
+                <input
+                  type="text"
+                  defaultValue={user.sub || ''}
+                  readOnly
+                  style={{ color: 'var(--color-text-secondary)', fontSize: '0.8rem' }}
+                />
               </div>
               <div className={styles.field}>
                 <label>Phone</label>

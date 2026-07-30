@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import {
-  getCustomers,
-  getCustomerOrders,
-  updateCustomerStatus,
-} from '../services/customerService';
+import { getCustomers, getCustomerOrders, updateCustomerStatus } from '../services/customerService';
 
 const useCustomers = () => {
   const [customers, setCustomers] = useState([]);

@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { Grid3X3, LayoutGrid } from "lucide-react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { Grid3X3, LayoutGrid } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-import ProductCard from "../../components/ProductCard/ProductCard";
-import { getProducts } from "../../services/productService";
+import ProductCard from '../../components/ProductCard/ProductCard';
+import { getProducts } from '../../services/productService';
 
-import styles from "./Products.module.css";
+import styles from './Products.module.css';
 
 const Products = () => {
   const { category } = useParams();
@@ -15,7 +15,7 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
 
   const [gridCols, setGridCols] = useState(3);
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState('featured');
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -23,7 +23,7 @@ const Products = () => {
         const data = await getProducts();
         setProducts(data);
       } catch (error) {
-        console.error("Failed to load products:", error);
+        console.error('Failed to load products:', error);
       } finally {
         setLoading(false);
       }
@@ -33,20 +33,18 @@ const Products = () => {
   }, []);
 
   const filteredProducts = category
-    ? products.filter(
-        (p) => p.category.toLowerCase() === category.toLowerCase()
-      )
+    ? products.filter((p) => p.category.toLowerCase() === category.toLowerCase())
     : products;
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
-      case "price-low":
+      case 'price-low':
         return a.price - b.price;
 
-      case "price-high":
+      case 'price-high':
         return b.price - a.price;
 
-      case "rating":
+      case 'rating':
         return b.rating - a.rating;
 
       default:
@@ -67,18 +65,13 @@ const Products = () => {
   return (
     <div className={styles.page}>
       <div className="container">
-
         <div className={styles.header}>
           <div>
             <h1 className={styles.title}>
-              {category
-                ? category.charAt(0).toUpperCase() + category.slice(1)
-                : "All Products"}
+              {category ? category.charAt(0).toUpperCase() + category.slice(1) : 'All Products'}
             </h1>
 
-            <p className={styles.count}>
-              {sortedProducts.length} Products
-            </p>
+            <p className={styles.count}>{sortedProducts.length} Products</p>
           </div>
 
           <div className={styles.controls}>
@@ -95,18 +88,14 @@ const Products = () => {
 
             <div className={styles.gridToggle}>
               <button
-                className={`${styles.gridBtn} ${
-                  gridCols === 3 ? styles.active : ""
-                }`}
+                className={`${styles.gridBtn} ${gridCols === 3 ? styles.active : ''}`}
                 onClick={() => setGridCols(3)}
               >
                 <Grid3X3 size={18} />
               </button>
 
               <button
-                className={`${styles.gridBtn} ${
-                  gridCols === 4 ? styles.active : ""
-                }`}
+                className={`${styles.gridBtn} ${gridCols === 4 ? styles.active : ''}`}
                 onClick={() => setGridCols(4)}
               >
                 <LayoutGrid size={18} />
@@ -134,7 +123,6 @@ const Products = () => {
             </motion.div>
           ))}
         </motion.div>
-
       </div>
     </div>
   );

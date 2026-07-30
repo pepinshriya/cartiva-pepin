@@ -12,7 +12,12 @@ describe('getTopProducts', () => {
 
   it('should aggregate quantities sold and sort descending', async () => {
     orderRepository.scanAll.mockResolvedValue([
-      { items: [{ productId: 'p1', quantity: 3, price: 10 }, { productId: 'p2', quantity: 1, price: 50 }] },
+      {
+        items: [
+          { productId: 'p1', quantity: 3, price: 10 },
+          { productId: 'p2', quantity: 1, price: 50 },
+        ],
+      },
       { items: [{ productId: 'p1', quantity: 2, price: 10 }] },
     ]);
     productRepository.scanAll.mockResolvedValue([
@@ -27,7 +32,11 @@ describe('getTopProducts', () => {
   });
 
   it('should return at most 10 products', async () => {
-    const items = Array.from({ length: 15 }, (_, i) => ({ productId: `p${i}`, quantity: 1, price: 10 }));
+    const items = Array.from({ length: 15 }, (_, i) => ({
+      productId: `p${i}`,
+      quantity: 1,
+      price: 10,
+    }));
     orderRepository.scanAll.mockResolvedValue([{ items }]);
     productRepository.scanAll.mockResolvedValue([]);
 

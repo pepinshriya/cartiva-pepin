@@ -1,6 +1,15 @@
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Skeleton, Typography, IconButton, Tooltip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Skeleton,
+  Typography,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { Eye } from 'lucide-react';
 import { useState, useMemo } from 'react';
@@ -29,10 +38,14 @@ const RowSkeleton = () => (
 );
 
 const formatDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) {
+    return '—';
+  }
   try {
     return new Date(iso).toLocaleDateString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
   } catch {
     return iso;
@@ -50,12 +63,28 @@ const CustomerTable = ({ customers, loading, onViewDetails }) => {
   };
 
   const sorted = useMemo(() => {
-    if (!customers.length) return customers;
+    if (!customers.length) {
+      return customers;
+    }
     return [...customers].sort((a, b) => {
-      const aVal = orderBy === 'totalSpending' ? a.totalSpending : orderBy === 'joined' ? a.createdAt : a[orderBy];
-      const bVal = orderBy === 'totalSpending' ? b.totalSpending : orderBy === 'joined' ? b.createdAt : b[orderBy];
-      if (!aVal) return 1;
-      if (!bVal) return -1;
+      const aVal =
+        orderBy === 'totalSpending'
+          ? a.totalSpending
+          : orderBy === 'joined'
+            ? a.createdAt
+            : a[orderBy];
+      const bVal =
+        orderBy === 'totalSpending'
+          ? b.totalSpending
+          : orderBy === 'joined'
+            ? b.createdAt
+            : b[orderBy];
+      if (!aVal) {
+        return 1;
+      }
+      if (!bVal) {
+        return -1;
+      }
       const cmp = typeof aVal === 'string' ? aVal.localeCompare(bVal) : aVal - bVal;
       return orderDir === 'asc' ? cmp : -cmp;
     });
@@ -88,7 +117,9 @@ const CustomerTable = ({ customers, loading, onViewDetails }) => {
 
   if (!customers.length) {
     return (
-      <Paper sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}>
+      <Paper
+        sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}
+      >
         <Typography color="text.secondary">No customers found.</Typography>
       </Paper>
     );
@@ -130,22 +161,26 @@ const CustomerTable = ({ customers, loading, onViewDetails }) => {
                     {customer.name}
                   </Typography>
                 </TableCell>
-                <TableCell sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>
+                <TableCell
+                  sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}
+                >
                   {customer.email}
                 </TableCell>
-                <TableCell sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>
+                <TableCell
+                  sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}
+                >
                   {customer.phone || '—'}
                 </TableCell>
-                <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>
-                  {customer.totalOrders}
-                </TableCell>
+                <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>{customer.totalOrders}</TableCell>
                 <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>
                   ${customer.totalSpending?.toFixed(2)}
                 </TableCell>
                 <TableCell sx={{ fontSize: 13 }}>
                   <CustomerStatusChip status={customer.status} />
                 </TableCell>
-                <TableCell sx={{ fontSize: 12, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>
+                <TableCell
+                  sx={{ fontSize: 12, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}
+                >
                   {formatDate(customer.createdAt)}
                 </TableCell>
                 <TableCell sx={{ fontSize: 13 }}>

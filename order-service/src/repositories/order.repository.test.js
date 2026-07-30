@@ -6,7 +6,6 @@ const orderRepository = require('./order.repository');
 const ddbMock = mockClient(docClient);
 
 describe('order.repository', () => {
-
   beforeEach(() => {
     ddbMock.reset();
   });
@@ -92,5 +91,4 @@ describe('order.repository', () => {
       expect(ddbMock.commandCalls(UpdateCommand).length).toBe(1);
     });
   });
-
 });

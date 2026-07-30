@@ -1,6 +1,15 @@
 import {
-  Card, CardContent, Typography, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Chip, Box,
+  Card,
+  CardContent,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+  Box,
 } from '@mui/material';
 import { ShoppingCart } from 'lucide-react';
 
@@ -34,7 +43,12 @@ const RecentOrders = ({ orders }) => {
                   Customer
                 </TableCell>
                 <TableCell
-                  sx={{ fontWeight: 600, color: '#64748b', fontSize: 12, display: { xs: 'none', md: 'table-cell' } }}
+                  sx={{
+                    fontWeight: 600,
+                    color: '#64748b',
+                    fontSize: 12,
+                    display: { xs: 'none', md: 'table-cell' },
+                  }}
                 >
                   Date
                 </TableCell>
@@ -50,23 +64,26 @@ const RecentOrders = ({ orders }) => {
             </TableHead>
             <TableBody>
               {orders.map((order) => (
-                <TableRow
-                  key={order.id}
-                  sx={{ '&:last-child td': { borderBottom: 0 } }}
-                >
-                  <TableCell sx={{ fontWeight: 600, fontSize: 13 }}>
-                    {order.id}
-                  </TableCell>
+                <TableRow key={order.id} sx={{ '&:last-child td': { borderBottom: 0 } }}>
+                  <TableCell sx={{ fontWeight: 600, fontSize: 13 }}>{order.id}</TableCell>
                   <TableCell sx={{ fontSize: 13 }}>
                     <Typography variant="body2" fontWeight={500}>
                       {order.customer}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', md: 'block' } }}>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: { xs: 'none', md: 'block' } }}
+                    >
                       {order.email}
                     </Typography>
                   </TableCell>
                   <TableCell
-                    sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}
+                    sx={{
+                      fontSize: 13,
+                      color: '#64748b',
+                      display: { xs: 'none', md: 'table-cell' },
+                    }}
                   >
                     {order.date}
                   </TableCell>

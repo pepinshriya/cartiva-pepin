@@ -34,6 +34,20 @@ jobs:
       - run: npm ci
       - run: npm test
 
+  lint-format:
+    name: lint + format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+
   build-frontend:
     name: frontend
     runs-on: ubuntu-latest

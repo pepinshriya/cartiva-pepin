@@ -1,12 +1,17 @@
 const { mockClient } = require('aws-sdk-client-mock');
-const { PutCommand, GetCommand, ScanCommand, UpdateCommand, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
+const {
+  PutCommand,
+  GetCommand,
+  ScanCommand,
+  UpdateCommand,
+  DeleteCommand,
+} = require('@aws-sdk/lib-dynamodb');
 const { docClient } = require('../config/dynamodb');
 const productRepository = require('./product.repository');
 
 const ddbMock = mockClient(docClient);
 
 describe('product.repository', () => {
-
   beforeEach(() => {
     ddbMock.reset();
   });
@@ -71,5 +76,4 @@ describe('product.repository', () => {
       expect(ddbMock.commandCalls(DeleteCommand).length).toBe(1);
     });
   });
-
 });

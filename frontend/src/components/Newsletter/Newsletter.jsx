@@ -30,7 +30,8 @@ const Newsletter = () => {
             <span className={styles.tag}>Stay in the Loop</span>
             <h2 className={styles.title}>Join the Cartiva Community</h2>
             <p className={styles.desc}>
-              Get early access to new arrivals, exclusive deals, and style inspiration delivered to your inbox.
+              Get early access to new arrivals, exclusive deals, and style inspiration delivered to
+              your inbox.
             </p>
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.inputWrap}>

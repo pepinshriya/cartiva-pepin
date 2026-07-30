@@ -1,5 +1,5 @@
-const recentOrdersService = require("../services/recentOrders.service");
-const response = require("../utils/response");
+const recentOrdersService = require('../services/recentOrders.service');
+const response = require('../utils/response');
 
 const getRecentOrders = async (req, res, next) => {
   try {

@@ -34,7 +34,10 @@ const validatePaymentStatus = (status) => {
 
   const validStatuses = Object.values(PaymentModel.statuses);
   if (!validStatuses.includes(status)) {
-    throw { statusCode: 400, message: `Payment status must be one of: ${validStatuses.join(', ')}` };
+    throw {
+      statusCode: 400,
+      message: `Payment status must be one of: ${validStatuses.join(', ')}`,
+    };
   }
 };
 

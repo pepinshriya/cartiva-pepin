@@ -4,7 +4,6 @@ const { getProductById } = require('./product.client');
 jest.mock('axios');
 
 describe('getProductById', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -31,5 +30,4 @@ describe('getProductById', () => {
       message: 'Product service unavailable',
     });
   });
-
 });

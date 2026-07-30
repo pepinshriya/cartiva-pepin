@@ -18,7 +18,9 @@ const STATUS_MAP = {
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const formatShortDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) {
+    return '—';
+  }
   try {
     const d = new Date(iso);
     return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
@@ -28,10 +30,14 @@ const formatShortDate = (iso) => {
 };
 
 const formatDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) {
+    return '—';
+  }
   try {
     return new Date(iso).toLocaleDateString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
   } catch {
     return iso;
@@ -74,7 +80,9 @@ const buildStats = (data) => [
 ];
 
 const buildRevenue = (data) => {
-  if (!Array.isArray(data)) return [];
+  if (!Array.isArray(data)) {
+    return [];
+  }
   return data.map((d) => ({
     month: formatShortDate(d.date),
     revenue: d.revenue ?? 0,
@@ -83,7 +91,9 @@ const buildRevenue = (data) => {
 };
 
 const buildRecentOrders = (data) => {
-  if (!Array.isArray(data)) return [];
+  if (!Array.isArray(data)) {
+    return [];
+  }
   return data.map((o) => ({
     id: o.orderId || '—',
     customer: o.customerName || '—',
@@ -95,7 +105,9 @@ const buildRecentOrders = (data) => {
 };
 
 const buildTopProducts = (data) => {
-  if (!Array.isArray(data)) return [];
+  if (!Array.isArray(data)) {
+    return [];
+  }
   return data.map((p) => ({
     id: p.productId || p.id,
     name: p.name || 'Unknown',
@@ -107,7 +119,9 @@ const buildTopProducts = (data) => {
 };
 
 const buildLowStock = (data) => {
-  if (!Array.isArray(data)) return [];
+  if (!Array.isArray(data)) {
+    return [];
+  }
   return data.map((item) => {
     const ratio = item.threshold > 0 ? (item.currentStock ?? 0) / item.threshold : 1;
     return {

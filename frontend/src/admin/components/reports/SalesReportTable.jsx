@@ -1,6 +1,13 @@
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Skeleton, Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Skeleton,
+  Typography,
 } from '@mui/material';
 
 const headCells = [
@@ -21,10 +28,14 @@ const RowSkeleton = () => (
 );
 
 const formatDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) {
+    return '—';
+  }
   try {
     return new Date(iso).toLocaleDateString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
   } catch {
     return iso;
@@ -59,7 +70,9 @@ const SalesReportTable = ({ data, loading }) => {
 
   if (!data.length) {
     return (
-      <Paper sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}>
+      <Paper
+        sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}
+      >
         <Typography color="text.secondary">No sales data found for the selected period.</Typography>
       </Paper>
     );
@@ -92,9 +105,7 @@ const SalesReportTable = ({ data, loading }) => {
                 <TableCell sx={{ fontSize: 13, color: '#64748b' }}>
                   {formatDate(row.date)}
                 </TableCell>
-                <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>
-                  {row.orders ?? 0}
-                </TableCell>
+                <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>{row.orders ?? 0}</TableCell>
                 <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>
                   ${(row.revenue ?? 0).toFixed(2)}
                 </TableCell>

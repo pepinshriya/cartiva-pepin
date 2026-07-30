@@ -42,7 +42,11 @@ const ProductCard = ({ product }) => {
           {product.badge && (
             <span
               className={`${styles.badge} ${
-                product.badge === 'Sale' ? styles.saleBadge : product.badge === 'New' ? styles.newBadge : ''
+                product.badge === 'Sale'
+                  ? styles.saleBadge
+                  : product.badge === 'New'
+                    ? styles.newBadge
+                    : ''
               }`}
             >
               {product.badge}

@@ -74,9 +74,9 @@ describe('updateStock', () => {
   it('should throw 404 when stock does not exist', async () => {
     inventoryRepository.findByProductId.mockResolvedValue(null);
 
-    await expect(
-      inventoryService.updateStock('p1', { quantity: 99 })
-    ).rejects.toMatchObject({ statusCode: 404 });
+    await expect(inventoryService.updateStock('p1', { quantity: 99 })).rejects.toMatchObject({
+      statusCode: 404,
+    });
   });
 });
 
@@ -101,9 +101,10 @@ describe('reduceStock', () => {
   it('should throw 400 when reducing more than available stock', async () => {
     inventoryRepository.findByProductId.mockResolvedValue({ productId: 'p1', quantity: 5 });
 
-    await expect(
-      inventoryService.reduceStock('p1', { quantity: 20 })
-    ).rejects.toMatchObject({ statusCode: 400, message: 'Insufficient stock' });
+    await expect(inventoryService.reduceStock('p1', { quantity: 20 })).rejects.toMatchObject({
+      statusCode: 400,
+      message: 'Insufficient stock',
+    });
 
     expect(inventoryRepository.update).not.toHaveBeenCalled();
   });
@@ -111,9 +112,9 @@ describe('reduceStock', () => {
   it('should throw 404 when stock does not exist', async () => {
     inventoryRepository.findByProductId.mockResolvedValue(null);
 
-    await expect(
-      inventoryService.reduceStock('p1', { quantity: 20 })
-    ).rejects.toMatchObject({ statusCode: 404 });
+    await expect(inventoryService.reduceStock('p1', { quantity: 20 })).rejects.toMatchObject({
+      statusCode: 404,
+    });
   });
 });
 
@@ -138,9 +139,9 @@ describe('increaseStock', () => {
   it('should throw 404 when stock does not exist', async () => {
     inventoryRepository.findByProductId.mockResolvedValue(null);
 
-    await expect(
-      inventoryService.increaseStock('p1', { quantity: 30 })
-    ).rejects.toMatchObject({ statusCode: 404 });
+    await expect(inventoryService.increaseStock('p1', { quantity: 30 })).rejects.toMatchObject({
+      statusCode: 404,
+    });
   });
 });
 
@@ -150,7 +151,10 @@ describe('getAllInventory', () => {
   });
 
   it('should return all inventory items', async () => {
-    const fakeItems = [{ productId: 'p1', quantity: 10 }, { productId: 'p2', quantity: 20 }];
+    const fakeItems = [
+      { productId: 'p1', quantity: 10 },
+      { productId: 'p2', quantity: 20 },
+    ];
     inventoryRepository.findAll.mockResolvedValue(fakeItems);
 
     const result = await inventoryService.getAllInventory();

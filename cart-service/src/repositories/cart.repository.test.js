@@ -6,7 +6,6 @@ const cartRepository = require('./cart.repository');
 const ddbMock = mockClient(docClient);
 
 describe('cart.repository', () => {
-
   beforeEach(() => {
     ddbMock.reset();
   });
@@ -61,5 +60,4 @@ describe('cart.repository', () => {
       expect(ddbMock.commandCalls(DeleteCommand).length).toBe(1);
     });
   });
-
 });

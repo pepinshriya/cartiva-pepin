@@ -91,9 +91,9 @@ describe('updateProduct', () => {
   it('should throw 404 when product does not exist', async () => {
     productRepository.findById.mockResolvedValue(null);
 
-    await expect(
-      productService.updateProduct('p1', { name: 'New Name' })
-    ).rejects.toMatchObject({ statusCode: 404 });
+    await expect(productService.updateProduct('p1', { name: 'New Name' })).rejects.toMatchObject({
+      statusCode: 404,
+    });
   });
 });
 

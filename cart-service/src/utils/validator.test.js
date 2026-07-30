@@ -1,4 +1,10 @@
-const { validateUserId, validateCartItem, validateProductId, validateUpdateQuantity, validateCartData } = require('./validator');
+const {
+  validateUserId,
+  validateCartItem,
+  validateProductId,
+  validateUpdateQuantity,
+  validateCartData,
+} = require('./validator');
 
 describe('validateUserId', () => {
   it('should not throw when userId is a valid non-empty string', () => {

@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField,
-  MenuItem, Box, FormControlLabel, Switch,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  MenuItem,
+  Box,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 
 const CATEGORIES = [
@@ -58,16 +66,24 @@ const ProductDialog = ({ open, onClose, onSubmit, product }) => {
 
   const validate = () => {
     const errs = {};
-    if (!form.name.trim()) errs.name = 'Product name is required';
-    if (!form.price || Number(form.price) <= 0) errs.price = 'Price must be greater than 0';
-    if (!form.category) errs.category = 'Category is required';
+    if (!form.name.trim()) {
+      errs.name = 'Product name is required';
+    }
+    if (!form.price || Number(form.price) <= 0) {
+      errs.price = 'Price must be greater than 0';
+    }
+    if (!form.category) {
+      errs.category = 'Category is required';
+    }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -86,9 +102,7 @@ const ProductDialog = ({ open, onClose, onSubmit, product }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ fontWeight: 700 }}>
-        {isEdit ? 'Edit Product' : 'Add Product'}
-      </DialogTitle>
+      <DialogTitle sx={{ fontWeight: 700 }}>{isEdit ? 'Edit Product' : 'Add Product'}</DialogTitle>
 
       <Box component="form" onSubmit={handleSubmit}>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -161,9 +175,7 @@ const ProductDialog = ({ open, onClose, onSubmit, product }) => {
           />
 
           <FormControlLabel
-            control={
-              <Switch checked={form.inStock} onChange={handleChange('inStock')} />
-            }
+            control={<Switch checked={form.inStock} onChange={handleChange('inStock')} />}
             label="In Stock"
           />
         </DialogContent>

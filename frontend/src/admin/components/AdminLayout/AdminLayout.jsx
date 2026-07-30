@@ -1,7 +1,15 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import {
-  LayoutDashboard, Package, Warehouse, ShoppingCart, Users,
-  BarChart3, Settings, LogOut, ChevronLeft, ChevronRight
+  LayoutDashboard,
+  Package,
+  Warehouse,
+  ShoppingCart,
+  Users,
+  BarChart3,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../../../hooks/useAuth';
@@ -38,9 +46,7 @@ const AdminLayout = () => {
             <NavLink
               key={link.to}
               to={link.to}
-              className={({ isActive }) =>
-                `${styles.navItem} ${isActive ? styles.active : ''}`
-              }
+              className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
             >
               <link.icon size={20} />
               {!collapsed && <span>{link.label}</span>}
@@ -59,10 +65,7 @@ const AdminLayout = () => {
             <LogOut size={20} />
             {!collapsed && <span>Logout</span>}
           </button>
-          <button
-            className={styles.collapseBtn}
-            onClick={() => setCollapsed(!collapsed)}
-          >
+          <button className={styles.collapseBtn} onClick={() => setCollapsed(!collapsed)}>
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
         </div>

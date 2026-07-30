@@ -65,4 +65,12 @@ const getOrderTimeline = async (req, res, next) => {
   }
 };
 
-module.exports = { placeOrder, getOrder, getUserOrders, cancelOrder, getAllOrders, updateOrderStatus, getOrderTimeline };
+module.exports = {
+  placeOrder,
+  getOrder,
+  getUserOrders,
+  cancelOrder,
+  getAllOrders,
+  updateOrderStatus,
+  getOrderTimeline,
+};

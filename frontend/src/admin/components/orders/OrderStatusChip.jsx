@@ -16,15 +16,24 @@ const PAYMENT_STATUSES = {
 };
 
 export const OrderStatusChip = ({ status }) => {
-  const cfg = statusConfig[status] || { label: status, color: '#64748b', bg: '#f1f5f9', border: '#64748b' };
+  const cfg = statusConfig[status] || {
+    label: status,
+    color: '#64748b',
+    bg: '#f1f5f9',
+    border: '#64748b',
+  };
   return (
     <Chip
       label={cfg.label}
       size="small"
       variant="outlined"
       sx={{
-        fontWeight: 600, fontSize: 11, borderRadius: 1.5,
-        color: cfg.color, borderColor: cfg.border, bgcolor: cfg.bg,
+        fontWeight: 600,
+        fontSize: 11,
+        borderRadius: 1.5,
+        color: cfg.color,
+        borderColor: cfg.border,
+        bgcolor: cfg.bg,
       }}
     />
   );
@@ -37,8 +46,11 @@ export const PaymentStatusChip = ({ status }) => {
       label={cfg.label}
       size="small"
       sx={{
-        fontWeight: 600, fontSize: 11, borderRadius: 1.5,
-        color: cfg.color, bgcolor: cfg.bg,
+        fontWeight: 600,
+        fontSize: 11,
+        borderRadius: 1.5,
+        color: cfg.color,
+        bgcolor: cfg.bg,
       }}
     />
   );

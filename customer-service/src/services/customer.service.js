@@ -64,12 +64,9 @@ const getCustomerById = async (customerId, authHeader) => {
 
 const getCustomerOrders = async (customerId, authHeader) => {
   try {
-    const response = await axios.get(
-      `${ORDER_SERVICE_URL}/api/orders/user/${customerId}`,
-      {
-        headers: authHeader ? { Authorization: authHeader } : {},
-      }
-    );
+    const response = await axios.get(`${ORDER_SERVICE_URL}/api/orders/user/${customerId}`, {
+      headers: authHeader ? { Authorization: authHeader } : {},
+    });
     return response.data?.data ?? response.data ?? [];
   } catch {
     return [];

@@ -61,9 +61,7 @@ const addItem = async (userId, itemData) => {
   // 🔥 Call Product Service
   const product = await productClient.getProductById(itemData.productId);
 
-  const existingItemIndex = cart.items.findIndex(
-    (item) => item.productId === itemData.productId
-  );
+  const existingItemIndex = cart.items.findIndex((item) => item.productId === itemData.productId);
 
   if (existingItemIndex > -1) {
     cart.items[existingItemIndex].quantity += itemData.quantity;
@@ -76,10 +74,7 @@ const addItem = async (userId, itemData) => {
     });
   }
 
-  cart.totalPrice = cart.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  cart.totalPrice = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return await cartRepository.update(userId, {
     items: cart.items,
@@ -100,9 +95,7 @@ const removeItem = async (userId, productId) => {
     };
   }
 
-  const itemIndex = cart.items.findIndex(
-    (item) => item.productId === productId
-  );
+  const itemIndex = cart.items.findIndex((item) => item.productId === productId);
 
   if (itemIndex === -1) {
     throw {
@@ -113,10 +106,7 @@ const removeItem = async (userId, productId) => {
 
   cart.items.splice(itemIndex, 1);
 
-  cart.totalPrice = cart.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  cart.totalPrice = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return await cartRepository.update(userId, {
     items: cart.items,
@@ -138,9 +128,7 @@ const updateItemQuantity = async (userId, productId, data) => {
     };
   }
 
-  const itemIndex = cart.items.findIndex(
-    (item) => item.productId === productId
-  );
+  const itemIndex = cart.items.findIndex((item) => item.productId === productId);
 
   if (itemIndex === -1) {
     throw {
@@ -151,10 +139,7 @@ const updateItemQuantity = async (userId, productId, data) => {
 
   cart.items[itemIndex].quantity = data.quantity;
 
-  cart.totalPrice = cart.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  cart.totalPrice = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return await cartRepository.update(userId, {
     items: cart.items,

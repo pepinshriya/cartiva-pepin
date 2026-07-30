@@ -15,7 +15,9 @@ const OrderSuccess = () => {
   const [polling, setPolling] = useState(true);
 
   const fetchOrder = useCallback(async () => {
-    if (!initialOrder?.orderId) return;
+    if (!initialOrder?.orderId) {
+      return;
+    }
     try {
       const latest = await getOrder(initialOrder.orderId);
       setOrder(latest);
@@ -29,7 +31,9 @@ const OrderSuccess = () => {
   }, [initialOrder?.orderId]);
 
   useEffect(() => {
-    if (!initialOrder?.orderId) return;
+    if (!initialOrder?.orderId) {
+      return;
+    }
 
     let elapsed = 0;
     const timer = setInterval(() => {
@@ -79,7 +83,9 @@ const OrderSuccess = () => {
           </motion.div>
 
           <h1 className={styles.title}>Order Placed Successfully!</h1>
-          <p className={styles.subtitle}>Thank you for your purchase. Your order has been confirmed.</p>
+          <p className={styles.subtitle}>
+            Thank you for your purchase. Your order has been confirmed.
+          </p>
 
           {polling && (
             <div className={styles.polling}>
@@ -103,11 +109,19 @@ const OrderSuccess = () => {
             </div>
             <div className={styles.detailRow}>
               <span className={styles.label}>Payment Status</span>
-              <span className={`${styles.badge} ${isConfirmed ? styles.confirmed : styles.pending}`}>{order.paymentStatus}</span>
+              <span
+                className={`${styles.badge} ${isConfirmed ? styles.confirmed : styles.pending}`}
+              >
+                {order.paymentStatus}
+              </span>
             </div>
             <div className={styles.detailRow}>
               <span className={styles.label}>Order Status</span>
-              <span className={`${styles.badge} ${isConfirmed ? styles.confirmed : styles.pending}`}>{order.status}</span>
+              <span
+                className={`${styles.badge} ${isConfirmed ? styles.confirmed : styles.pending}`}
+              >
+                {order.status}
+              </span>
             </div>
           </div>
 
@@ -118,7 +132,9 @@ const OrderSuccess = () => {
                 <Package size={18} color="var(--color-text-secondary)" />
                 <div className={styles.itemInfo}>
                   <span className={styles.itemName}>{item.name}</span>
-                  <span className={styles.itemMeta}>Qty: {item.quantity} &middot; ${item.price.toFixed(2)} each</span>
+                  <span className={styles.itemMeta}>
+                    Qty: {item.quantity} &middot; ${item.price.toFixed(2)} each
+                  </span>
                 </div>
                 <span className={styles.itemTotal}>${(item.price * item.quantity).toFixed(2)}</span>
               </div>

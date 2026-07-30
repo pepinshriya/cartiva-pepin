@@ -1,5 +1,5 @@
-const lowStockService = require("../services/lowStock.service");
-const response = require("../utils/response");
+const lowStockService = require('../services/lowStock.service');
+const response = require('../utils/response');
 
 const getLowStock = async (req, res, next) => {
   try {

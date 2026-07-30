@@ -1,6 +1,15 @@
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Skeleton, Typography, IconButton, Tooltip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Skeleton,
+  Typography,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { Eye, ArrowUpDown } from 'lucide-react';
 import { OrderStatusChip, PaymentStatusChip } from './OrderStatusChip';
@@ -28,10 +37,14 @@ const RowSkeleton = () => (
 );
 
 const formatDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) {
+    return '—';
+  }
   try {
     return new Date(iso).toLocaleDateString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
   } catch {
     return iso;
@@ -49,12 +62,20 @@ const OrderTable = ({ orders, loading, onViewDetails }) => {
   };
 
   const sorted = useMemo(() => {
-    if (!orders.length) return orders;
+    if (!orders.length) {
+      return orders;
+    }
     return [...orders].sort((a, b) => {
-      const aVal = orderBy === 'total' ? a.totalAmount : orderBy === 'date' ? a.createdAt : a[orderBy];
-      const bVal = orderBy === 'total' ? b.totalAmount : orderBy === 'date' ? b.createdAt : b[orderBy];
-      if (!aVal) return 1;
-      if (!bVal) return -1;
+      const aVal =
+        orderBy === 'total' ? a.totalAmount : orderBy === 'date' ? a.createdAt : a[orderBy];
+      const bVal =
+        orderBy === 'total' ? b.totalAmount : orderBy === 'date' ? b.createdAt : b[orderBy];
+      if (!aVal) {
+        return 1;
+      }
+      if (!bVal) {
+        return -1;
+      }
       const cmp = typeof aVal === 'string' ? aVal.localeCompare(bVal) : aVal - bVal;
       return orderDir === 'asc' ? cmp : -cmp;
     });
@@ -87,7 +108,9 @@ const OrderTable = ({ orders, loading, onViewDetails }) => {
 
   if (!orders.length) {
     return (
-      <Paper sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}>
+      <Paper
+        sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}
+      >
         <Typography color="text.secondary">No orders found.</Typography>
       </Paper>
     );
@@ -103,7 +126,9 @@ const OrderTable = ({ orders, loading, onViewDetails }) => {
                 <TableCell
                   key={h.id}
                   sx={{
-                    fontWeight: 600, color: '#64748b', fontSize: 12,
+                    fontWeight: 600,
+                    color: '#64748b',
+                    fontSize: 12,
                     display: h.hideMobile ? { xs: 'none', md: 'table-cell' } : undefined,
                     cursor: h.sortable ? 'pointer' : undefined,
                   }}
@@ -111,7 +136,10 @@ const OrderTable = ({ orders, loading, onViewDetails }) => {
                 >
                   {h.label}
                   {h.sortable && (
-                    <ArrowUpDown size={12} style={{ marginLeft: 4, verticalAlign: 'middle', opacity: 0.5 }} />
+                    <ArrowUpDown
+                      size={12}
+                      style={{ marginLeft: 4, verticalAlign: 'middle', opacity: 0.5 }}
+                    />
                   )}
                 </TableCell>
               ))}
@@ -127,11 +155,17 @@ const OrderTable = ({ orders, loading, onViewDetails }) => {
                   <Typography variant="body2" fontWeight={500}>
                     {order.customer?.name || '—'}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'none', md: 'block' } }}>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: { xs: 'none', md: 'block' } }}
+                  >
                     {order.customer?.email || ''}
                   </Typography>
                 </TableCell>
-                <TableCell sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>
+                <TableCell
+                  sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}
+                >
                   {order.items?.length ?? 0}
                 </TableCell>
                 <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>
@@ -143,7 +177,9 @@ const OrderTable = ({ orders, loading, onViewDetails }) => {
                 <TableCell sx={{ fontSize: 13 }}>
                   <OrderStatusChip status={order.status} />
                 </TableCell>
-                <TableCell sx={{ fontSize: 12, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>
+                <TableCell
+                  sx={{ fontSize: 12, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}
+                >
                   {formatDate(order.createdAt)}
                 </TableCell>
                 <TableCell sx={{ fontSize: 13 }}>

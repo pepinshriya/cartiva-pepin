@@ -35,7 +35,13 @@ const Orders = () => {
       <Typography
         variant="h5"
         fontWeight={700}
-        sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          mb: 3,
+          fontSize: { xs: '1.1rem', sm: '1.25rem' },
+        }}
       >
         <ShoppingCart size={22} />
         Orders
@@ -48,11 +54,7 @@ const Orders = () => {
         onStatusChange={setStatusFilter}
       />
 
-      <OrderTable
-        orders={orders}
-        loading={loading}
-        onViewDetails={openDetailsDrawer}
-      />
+      <OrderTable orders={orders} loading={loading} onViewDetails={openDetailsDrawer} />
 
       <OrderDetailsDrawer
         open={drawerOpen}

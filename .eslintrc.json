@@ -1,0 +1,53 @@
+{
+  "root": true,
+  "env": {
+    "node": true,
+    "es2022": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2022
+  },
+  "extends": ["eslint:recommended"],
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-console": "off",
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "all"],
+    "no-var": "error",
+    "prefer-const": "error"
+  },
+  "overrides": [
+    {
+      "files": ["frontend/**"],
+      "env": {
+        "browser": true,
+        "node": false
+      },
+      "parserOptions": {
+        "sourceType": "module",
+        "ecmaFeatures": { "jsx": true }
+      },
+      "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended"
+      ],
+      "rules": {
+        "react/react-in-jsx-scope": "off",
+        "react/prop-types": "warn"
+      },
+      "settings": {
+        "react": { "version": "detect" }
+      }
+    },
+    {
+      "files": ["*.test.js", "*.spec.js"],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "no-undef": "off"
+      }
+    }
+  ]
+}

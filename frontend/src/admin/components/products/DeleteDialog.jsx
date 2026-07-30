@@ -1,6 +1,10 @@
 import {
-  Dialog, DialogTitle, DialogContent, DialogContentText,
-  DialogActions, Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from '@mui/material';
 import { Trash2 } from 'lucide-react';
 
@@ -14,8 +18,8 @@ const DeleteDialog = ({ open, onClose, onConfirm, product, loading }) => {
 
       <DialogContent>
         <DialogContentText>
-          Are you sure you want to delete <strong>{product?.name}</strong>?
-          This action cannot be undone.
+          Are you sure you want to delete <strong>{product?.name}</strong>? This action cannot be
+          undone.
         </DialogContentText>
       </DialogContent>
 

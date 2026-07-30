@@ -1,14 +1,17 @@
-import {
-  Drawer, Box, Typography, IconButton, Divider, Skeleton, Chip,
-} from '@mui/material';
+import { Drawer, Box, Typography, IconButton, Divider, Skeleton, Chip } from '@mui/material';
 import { X, History, PackagePlus, Pencil } from 'lucide-react';
 
 const formatDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) {
+    return '—';
+  }
   try {
     return new Date(iso).toLocaleString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   } catch {
     return iso;

@@ -1,6 +1,4 @@
-import {
-  Box, TextField, Select, MenuItem, InputLabel, FormControl, Button,
-} from '@mui/material';
+import { Box, TextField, Select, MenuItem, InputLabel, FormControl, Button } from '@mui/material';
 import { RefreshCw, Download } from 'lucide-react';
 
 const REPORT_TYPES = [
@@ -10,10 +8,15 @@ const REPORT_TYPES = [
 ];
 
 const ReportToolbar = ({
-  reportType, onReportTypeChange,
-  startDate, onStartDateChange,
-  endDate, onEndDateChange,
-  onRefresh, onExportClick, loading,
+  reportType,
+  onReportTypeChange,
+  startDate,
+  onStartDateChange,
+  endDate,
+  onEndDateChange,
+  onRefresh,
+  onExportClick,
+  loading,
 }) => {
   return (
     <Box

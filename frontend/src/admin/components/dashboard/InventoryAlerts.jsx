@@ -1,6 +1,4 @@
-import {
-  Card, CardContent, Typography, Box, LinearProgress, Chip,
-} from '@mui/material';
+import { Card, CardContent, Typography, Box, LinearProgress, Chip } from '@mui/material';
 import { AlertTriangle } from 'lucide-react';
 
 const statusConfig = {

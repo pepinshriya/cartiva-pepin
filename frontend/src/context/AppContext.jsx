@@ -33,7 +33,9 @@ const appReducer = (state, action) => {
       return { ...state, error: action.payload, loading: false };
     case 'ADD_TO_WISHLIST': {
       const exists = state.wishlist.find((item) => item.id === action.payload.id);
-      if (exists) return state;
+      if (exists) {
+        return state;
+      }
       return { ...state, wishlist: [...state.wishlist, action.payload] };
     }
     case 'REMOVE_FROM_WISHLIST':
@@ -44,7 +46,9 @@ const appReducer = (state, action) => {
 };
 
 const enrichCartItems = async (items) => {
-  if (!items || items.length === 0) return [];
+  if (!items || items.length === 0) {
+    return [];
+  }
 
   const enriched = await Promise.all(
     items.map(async (item) => {
@@ -110,76 +114,93 @@ export const AppProvider = ({ children }) => {
     }
   }, [getUserId]);
 
-  const addToCart = useCallback(async (item) => {
-    const userId = getUserId();
-    if (!userId) return false;
-    dispatch({ type: 'SET_LOADING', payload: true });
-    try {
-      await cartAddItem(userId, {
-        productId: item.productId || item.id,
-        quantity: item.quantity || 1,
-      });
-      await loadCart();
-      return true;
-    } catch (err) {
-      console.error('Failed to add item to cart:', err);
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to add item to cart' });
-      return false;
-    }
-  }, [getUserId, loadCart]);
-
-  const removeFromCart = useCallback(async (productId) => {
-    const userId = getUserId();
-    if (!userId) return false;
-    dispatch({ type: 'SET_LOADING', payload: true });
-    try {
-      await cartRemoveItem(userId, productId);
-      await loadCart();
-      return true;
-    } catch (err) {
-      console.error('Failed to remove item from cart:', err);
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to remove item from cart' });
-      return false;
-    }
-  }, [getUserId, loadCart]);
-
-  const updateQuantity = useCallback(async (productId, quantity) => {
-    const userId = getUserId();
-    if (!userId) return { success: false, error: 'Not authenticated' };
-
-    try {
-      const result = await cartUpdateItemQuantity(userId, productId, quantity);
-      const updatedItems = result?.cart?.items;
-      if (updatedItems) {
-        const enrichedItems = await enrichCartItems(updatedItems);
-        dispatch({ type: 'SET_CART', payload: enrichedItems });
-      } else {
+  const addToCart = useCallback(
+    async (item) => {
+      const userId = getUserId();
+      if (!userId) {
+        return false;
+      }
+      dispatch({ type: 'SET_LOADING', payload: true });
+      try {
+        await cartAddItem(userId, {
+          productId: item.productId || item.id,
+          quantity: item.quantity || 1,
+        });
         await loadCart();
+        return true;
+      } catch (err) {
+        console.error('Failed to add item to cart:', err);
+        dispatch({ type: 'SET_ERROR', payload: 'Failed to add item to cart' });
+        return false;
       }
-      return { success: true };
-    } catch (patchErr) {
-      const status = patchErr?.response?.status;
-      if (status === 404 || status === 405 || !patchErr?.response) {
-        try {
-          await cartRemoveItem(userId, productId);
-          await cartAddItem(userId, { productId, quantity });
+    },
+    [getUserId, loadCart]
+  );
+
+  const removeFromCart = useCallback(
+    async (productId) => {
+      const userId = getUserId();
+      if (!userId) {
+        return false;
+      }
+      dispatch({ type: 'SET_LOADING', payload: true });
+      try {
+        await cartRemoveItem(userId, productId);
+        await loadCart();
+        return true;
+      } catch (err) {
+        console.error('Failed to remove item from cart:', err);
+        dispatch({ type: 'SET_ERROR', payload: 'Failed to remove item from cart' });
+        return false;
+      }
+    },
+    [getUserId, loadCart]
+  );
+
+  const updateQuantity = useCallback(
+    async (productId, quantity) => {
+      const userId = getUserId();
+      if (!userId) {
+        return { success: false, error: 'Not authenticated' };
+      }
+
+      try {
+        const result = await cartUpdateItemQuantity(userId, productId, quantity);
+        const updatedItems = result?.cart?.items;
+        if (updatedItems) {
+          const enrichedItems = await enrichCartItems(updatedItems);
+          dispatch({ type: 'SET_CART', payload: enrichedItems });
+        } else {
           await loadCart();
-          return { success: true };
-        } catch (fallbackErr) {
-          const message = fallbackErr?.response?.data?.error || 'Failed to update quantity';
-          console.error('Update quantity fallback failed:', fallbackErr);
-          return { success: false, error: message };
         }
+        return { success: true };
+      } catch (patchErr) {
+        const status = patchErr?.response?.status;
+        if (status === 404 || status === 405 || !patchErr?.response) {
+          try {
+            await cartRemoveItem(userId, productId);
+            await cartAddItem(userId, { productId, quantity });
+            await loadCart();
+            return { success: true };
+          } catch (fallbackErr) {
+            const message = fallbackErr?.response?.data?.error || 'Failed to update quantity';
+            console.error('Update quantity fallback failed:', fallbackErr);
+            return { success: false, error: message };
+          }
+        }
+        const message = patchErr?.response?.data?.error || 'Failed to update quantity';
+        console.error('Failed to update quantity:', patchErr);
+        return { success: false, error: message };
       }
-      const message = patchErr?.response?.data?.error || 'Failed to update quantity';
-      console.error('Failed to update quantity:', patchErr);
-      return { success: false, error: message };
-    }
-  }, [getUserId, loadCart]);
+    },
+    [getUserId, loadCart]
+  );
 
   const clearCartItems = useCallback(async () => {
     const userId = getUserId();
-    if (!userId) return false;
+    if (!userId) {
+      return false;
+    }
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       await cartClearCart(userId);
@@ -197,7 +218,17 @@ export const AppProvider = ({ children }) => {
   }, [loadCart]);
 
   return (
-    <AppContext.Provider value={{ state, dispatch, loadCart, addToCart, removeFromCart, updateQuantity, clearCart: clearCartItems }}>
+    <AppContext.Provider
+      value={{
+        state,
+        dispatch,
+        loadCart,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart: clearCartItems,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );

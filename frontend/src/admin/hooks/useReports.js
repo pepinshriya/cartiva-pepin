@@ -52,12 +52,35 @@ const useReports = () => {
           reportData = await getInventoryReport(filters);
           {
             const totalValue = reportData.reduce((s, r) => s + (r.inventoryValue ?? 0), 0);
-            const lowStock = reportData.filter((r) => (r.currentStock ?? 0) <= (r.threshold ?? 10)).length;
+            const lowStock = reportData.filter(
+              (r) => (r.currentStock ?? 0) <= (r.threshold ?? 10)
+            ).length;
             setData(reportData);
             setSummary([
-              { id: 'totalValue', label: 'Inventory Value', value: `$${totalValue.toLocaleString()}`, icon: 'Package', color: '#3b82f6', bgColor: '#eff6ff' },
-              { id: 'lowStock', label: 'Low Stock Items', value: lowStock, icon: 'AlertTriangle', color: '#ef4444', bgColor: '#fef2f2' },
-              { id: 'totalProducts', label: 'Total Products', value: reportData.length, icon: 'Package', color: '#f59e0b', bgColor: '#fffbeb' },
+              {
+                id: 'totalValue',
+                label: 'Inventory Value',
+                value: `$${totalValue.toLocaleString()}`,
+                icon: 'Package',
+                color: '#3b82f6',
+                bgColor: '#eff6ff',
+              },
+              {
+                id: 'lowStock',
+                label: 'Low Stock Items',
+                value: lowStock,
+                icon: 'AlertTriangle',
+                color: '#ef4444',
+                bgColor: '#fef2f2',
+              },
+              {
+                id: 'totalProducts',
+                label: 'Total Products',
+                value: reportData.length,
+                icon: 'Package',
+                color: '#f59e0b',
+                bgColor: '#fffbeb',
+              },
             ]);
           }
           setChartData([]);
@@ -70,9 +93,30 @@ const useReports = () => {
             const totalOrders = reportData.reduce((s, r) => s + (r.totalOrders ?? 0), 0);
             setData(reportData);
             setSummary([
-              { id: 'customers', label: 'Customers', value: reportData.length, icon: 'Users', color: '#8b5cf6', bgColor: '#f5f3ff' },
-              { id: 'revenue', label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, icon: 'TrendingUp', color: '#10b981', bgColor: '#ecfdf5' },
-              { id: 'orders', label: 'Total Orders', value: totalOrders, icon: 'ShoppingCart', color: '#3b82f6', bgColor: '#eff6ff' },
+              {
+                id: 'customers',
+                label: 'Customers',
+                value: reportData.length,
+                icon: 'Users',
+                color: '#8b5cf6',
+                bgColor: '#f5f3ff',
+              },
+              {
+                id: 'revenue',
+                label: 'Total Revenue',
+                value: `$${totalRevenue.toLocaleString()}`,
+                icon: 'TrendingUp',
+                color: '#10b981',
+                bgColor: '#ecfdf5',
+              },
+              {
+                id: 'orders',
+                label: 'Total Orders',
+                value: totalOrders,
+                icon: 'ShoppingCart',
+                color: '#3b82f6',
+                bgColor: '#eff6ff',
+              },
             ]);
           }
           setChartData([]);
@@ -85,9 +129,30 @@ const useReports = () => {
             const orders = reportData.reduce((s, r) => s + (r.orders ?? 0), 0);
             setData(reportData);
             setSummary([
-              { id: 'revenue', label: 'Revenue', value: `$${revenue.toLocaleString()}`, icon: 'TrendingUp', color: '#3b82f6', bgColor: '#eff6ff' },
-              { id: 'orders', label: 'Orders', value: orders, icon: 'ShoppingCart', color: '#10b981', bgColor: '#ecfdf5' },
-              { id: 'aov', label: 'Avg Order Value', value: `$${(revenue > 0 && orders > 0 ? (revenue / orders) : 0).toFixed(2)}`, icon: 'TrendingUp', color: '#f59e0b', bgColor: '#fffbeb' },
+              {
+                id: 'revenue',
+                label: 'Revenue',
+                value: `$${revenue.toLocaleString()}`,
+                icon: 'TrendingUp',
+                color: '#3b82f6',
+                bgColor: '#eff6ff',
+              },
+              {
+                id: 'orders',
+                label: 'Orders',
+                value: orders,
+                icon: 'ShoppingCart',
+                color: '#10b981',
+                bgColor: '#ecfdf5',
+              },
+              {
+                id: 'aov',
+                label: 'Avg Order Value',
+                value: `$${(revenue > 0 && orders > 0 ? revenue / orders : 0).toFixed(2)}`,
+                icon: 'TrendingUp',
+                color: '#f59e0b',
+                bgColor: '#fffbeb',
+              },
             ]);
           }
           setChartData(

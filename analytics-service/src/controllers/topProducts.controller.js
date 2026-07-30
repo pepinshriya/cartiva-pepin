@@ -1,5 +1,5 @@
-const topProductsService = require("../services/topProducts.service");
-const response = require("../utils/response");
+const topProductsService = require('../services/topProducts.service');
+const response = require('../utils/response');
 
 const getTopProducts = async (req, res, next) => {
   try {

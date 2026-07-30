@@ -1,7 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Heart, ShoppingBag, User, Menu, X, ChevronDown, LogOut, LogIn, Package } from 'lucide-react';
+import {
+  Search,
+  Heart,
+  ShoppingBag,
+  User,
+  Menu,
+  X,
+  ChevronDown,
+  LogOut,
+  LogIn,
+  Package,
+} from 'lucide-react';
 import { useAppContext } from '../../context/AppContext';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './Navbar.module.css';
@@ -124,7 +135,10 @@ const Navbar = () => {
                   <button
                     className={styles.iconBtn}
                     aria-label="Logout"
-                    onClick={() => { logout(); navigate('/'); }}
+                    onClick={() => {
+                      logout();
+                      navigate('/');
+                    }}
                   >
                     <LogOut size={20} />
                   </button>
@@ -244,7 +258,11 @@ const Navbar = () => {
                     </Link>
                     <button
                       className={styles.mobileFooterLink}
-                      onClick={() => { logout(); setMobileOpen(false); navigate('/'); }}
+                      onClick={() => {
+                        logout();
+                        setMobileOpen(false);
+                        navigate('/');
+                      }}
                     >
                       <LogOut size={18} /> Logout
                     </button>

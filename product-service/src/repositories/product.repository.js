@@ -1,4 +1,10 @@
-const { PutCommand, GetCommand, ScanCommand, UpdateCommand, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
+const {
+  PutCommand,
+  GetCommand,
+  ScanCommand,
+  UpdateCommand,
+  DeleteCommand,
+} = require('@aws-sdk/lib-dynamodb');
 const { docClient } = require('../config/dynamodb');
 const { TABLE_NAME } = require('../models/product.model');
 

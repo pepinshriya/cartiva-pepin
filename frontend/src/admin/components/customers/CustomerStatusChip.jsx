@@ -7,7 +7,12 @@ const statusConfig = {
 };
 
 const CustomerStatusChip = ({ status }) => {
-  const cfg = statusConfig[status] || { label: status, color: '#64748b', bg: '#f1f5f9', border: '#64748b' };
+  const cfg = statusConfig[status] || {
+    label: status,
+    color: '#64748b',
+    bg: '#f1f5f9',
+    border: '#64748b',
+  };
   return (
     <Chip
       label={cfg.label}

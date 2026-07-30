@@ -1,10 +1,10 @@
-import axios from "axios";
-import { getAccessToken } from "../../auth/cognitoService";
-import API_CONFIG from "../../config/api";
+import axios from 'axios';
+import { getAccessToken } from '../../auth/cognitoService';
+import API_CONFIG from '../../config/api';
 
 const analyticsApi = axios.create({
   baseURL: API_CONFIG.analytics.baseURL,
-  headers: { "Content-Type": "application/json" },
+  headers: { 'Content-Type': 'application/json' },
 });
 
 analyticsApi.interceptors.request.use(
@@ -26,7 +26,7 @@ analyticsApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      window.location.href = "/login";
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
@@ -47,11 +47,13 @@ const generateCSV = (rows, columns) => {
   const header = columns.map((c) => `"${c.label}"`).join(',');
   const body = rows
     .map((row) =>
-      columns.map((c) => {
-        const val = c.accessor(row);
-        const str = val == null ? '' : String(val);
-        return `"${str.replace(/"/g, '""')}"`;
-      }).join(',')
+      columns
+        .map((c) => {
+          const val = c.accessor(row);
+          const str = val === null || val === undefined ? '' : String(val);
+          return `"${str.replace(/"/g, '""')}"`;
+        })
+        .join(',')
     )
     .join('\n');
   return `${header}\n${body}`;
@@ -59,24 +61,36 @@ const generateCSV = (rows, columns) => {
 
 export const getSalesReport = async (filters = {}) => {
   const params = {};
-  if (filters.startDate) params.startDate = filters.startDate;
-  if (filters.endDate) params.endDate = filters.endDate;
+  if (filters.startDate) {
+    params.startDate = filters.startDate;
+  }
+  if (filters.endDate) {
+    params.endDate = filters.endDate;
+  }
   const response = await analyticsApi.get('/api/analytics/reports/sales', { params });
   return response.data?.data ?? response.data ?? [];
 };
 
 export const getInventoryReport = async (filters = {}) => {
   const params = {};
-  if (filters.startDate) params.startDate = filters.startDate;
-  if (filters.endDate) params.endDate = filters.endDate;
+  if (filters.startDate) {
+    params.startDate = filters.startDate;
+  }
+  if (filters.endDate) {
+    params.endDate = filters.endDate;
+  }
   const response = await analyticsApi.get('/api/analytics/reports/inventory', { params });
   return response.data?.data ?? response.data ?? [];
 };
 
 export const getCustomerReport = async (filters = {}) => {
   const params = {};
-  if (filters.startDate) params.startDate = filters.startDate;
-  if (filters.endDate) params.endDate = filters.endDate;
+  if (filters.startDate) {
+    params.startDate = filters.startDate;
+  }
+  if (filters.endDate) {
+    params.endDate = filters.endDate;
+  }
   const response = await analyticsApi.get('/api/analytics/reports/customers', { params });
   return response.data?.data ?? response.data ?? [];
 };
@@ -93,7 +107,16 @@ export const exportExcel = async (reportType, filters, rows) => {
   const columns = getExportColumns(reportType);
   const filename = `${reportType}-report-${new Date().toISOString().slice(0, 10)}.xls`;
   const csv = generateCSV(rows, columns);
-  const html = `<html><table>${csv.split('\n').map((r) => `<tr>${r.split(',').map((c) => `<td>${c.replace(/"/g, '')}</td>`).join('')}</tr>`).join('')}</table></html>`;
+  const html = `<html><table>${csv
+    .split('\n')
+    .map(
+      (r) =>
+        `<tr>${r
+          .split(',')
+          .map((c) => `<td>${c.replace(/"/g, '')}</td>`)
+          .join('')}</tr>`
+    )
+    .join('')}</table></html>`;
   const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
   downloadBlob(blob, filename);
 };
@@ -101,7 +124,11 @@ export const exportExcel = async (reportType, filters, rows) => {
 export const exportPDF = async (reportType, filters, rows) => {
   const columns = getExportColumns(reportType);
   const filename = `${reportType}-report-${new Date().toISOString().slice(0, 10)}.pdf`;
-  const lines = [`${reportType.toUpperCase()} REPORT`, `Generated: ${new Date().toLocaleString()}`, ''];
+  const lines = [
+    `${reportType.toUpperCase()} REPORT`,
+    `Generated: ${new Date().toLocaleString()}`,
+    '',
+  ];
   const header = columns.map((c) => c.label).join(' | ');
   lines.push(header);
   lines.push('-'.repeat(header.length));

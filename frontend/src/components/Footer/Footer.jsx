@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Mail, Globe, ExternalLink } from 'lucide-react';
+import { MapPin, Phone, Mail } from 'lucide-react';
 import styles from './Footer.module.css';
 
 const footerLinks = {
@@ -41,7 +41,9 @@ const Footer = () => {
       <div className="container">
         <div className={styles.top}>
           <div className={styles.brand}>
-            <Link to="/" className={styles.logo}>Cartiva</Link>
+            <Link to="/" className={styles.logo}>
+              Cartiva
+            </Link>
             <p className={styles.brandDesc}>
               Modern minimal fashion for the conscious consumer. Quality crafted, sustainably made.
             </p>
@@ -97,7 +99,9 @@ const Footer = () => {
         <div className={styles.divider} />
 
         <div className={styles.bottom}>
-          <p className={styles.copy}>&copy; {new Date().getFullYear()} Cartiva. All rights reserved.</p>
+          <p className={styles.copy}>
+            &copy; {new Date().getFullYear()} Cartiva. All rights reserved.
+          </p>
           <div className={styles.bottomLinks}>
             <a href="#">Privacy Policy</a>
             <a href="#">Terms of Service</a>

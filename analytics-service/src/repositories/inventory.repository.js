@@ -1,6 +1,6 @@
-const { ScanCommand } = require("@aws-sdk/lib-dynamodb");
-const { docClient } = require("../config/dynamodb");
-const { INVENTORY_TABLE } = require("../models/tables");
+const { ScanCommand } = require('@aws-sdk/lib-dynamodb');
+const { docClient } = require('../config/dynamodb');
+const { INVENTORY_TABLE } = require('../models/tables');
 
 const scanAll = async () => {
   const command = new ScanCommand({ TableName: INVENTORY_TABLE });

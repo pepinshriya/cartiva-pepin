@@ -60,19 +60,35 @@ const Verify = () => {
           <p>{email ? `Enter the code sent to ${email}` : 'Enter your verification code'}</p>
         </div>
         {error && (
-          <div style={{
-            background: '#fef2f2', color: '#dc2626', padding: '10px 14px',
-            borderRadius: 8, fontSize: 13, marginBottom: 16, border: '1px solid #fecaca',
-          }}>
+          <div
+            style={{
+              background: '#fef2f2',
+              color: '#dc2626',
+              padding: '10px 14px',
+              borderRadius: 8,
+              fontSize: 13,
+              marginBottom: 16,
+              border: '1px solid #fecaca',
+            }}
+          >
             {error}
           </div>
         )}
         {success && (
-          <div style={{
-            background: '#f0fdf4', color: '#16a34a', padding: '10px 14px',
-            borderRadius: 8, fontSize: 13, marginBottom: 16, border: '1px solid #bbf7d0',
-            display: 'flex', alignItems: 'center', gap: 8,
-          }}>
+          <div
+            style={{
+              background: '#f0fdf4',
+              color: '#16a34a',
+              padding: '10px 14px',
+              borderRadius: 8,
+              fontSize: 13,
+              marginBottom: 16,
+              border: '1px solid #bbf7d0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
             <CheckCircle size={16} />
             {success}
           </div>
@@ -96,12 +112,20 @@ const Verify = () => {
           </button>
         </form>
         <p className={styles.footer}>
-          Didn't get a code?{' '}
+          Didn&apos;t get a code?{' '}
           <button
             type="button"
             onClick={handleResend}
             disabled={resending}
-            style={{ background: 'none', border: 'none', color: 'inherit', textDecoration: 'underline', cursor: 'pointer', padding: 0, font: 'inherit' }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'inherit',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              padding: 0,
+              font: 'inherit',
+            }}
           >
             {resending ? 'Sending...' : 'Resend code'}
           </button>

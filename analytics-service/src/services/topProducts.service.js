@@ -1,5 +1,5 @@
-const orderRepository = require("../repositories/order.repository");
-const productRepository = require("../repositories/product.repository");
+const orderRepository = require('../repositories/order.repository');
+const productRepository = require('../repositories/product.repository');
 
 const getTopProducts = async () => {
   const [orders, products] = await Promise.all([
@@ -12,17 +12,17 @@ const getTopProducts = async () => {
   for (const order of orders) {
     const items = order.items || [];
     for (const item of items) {
-      const productId =
-        item.productId || item.id || item.productId;
-      if (!productId) continue;
+      const productId = item.productId || item.id || item.productId;
+      if (!productId) {
+        continue;
+      }
 
       if (!productSales[productId]) {
         productSales[productId] = { sold: 0, revenue: 0 };
       }
 
       productSales[productId].sold += item.quantity || 1;
-      productSales[productId].revenue +=
-        (item.price || 0) * (item.quantity || 1);
+      productSales[productId].revenue += (item.price || 0) * (item.quantity || 1);
     }
   }
 
@@ -36,8 +36,8 @@ const getTopProducts = async () => {
       const product = productMap[productId] || {};
       return {
         productId,
-        name: product.name || "Unknown Product",
-        category: product.category || "",
+        name: product.name || 'Unknown Product',
+        category: product.category || '',
         sold: sales.sold,
         revenue: sales.revenue,
       };

@@ -12,7 +12,6 @@ const buildSnsEvent = (messages) => ({
 });
 
 describe('order.subscriber handler', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -38,9 +37,7 @@ describe('order.subscriber handler', () => {
   });
 
   it('should do nothing for an unknown event type', async () => {
-    const event = buildSnsEvent([
-      { eventType: 'SOMETHING_ELSE', data: { orderId: 'o1' } },
-    ]);
+    const event = buildSnsEvent([{ eventType: 'SOMETHING_ELSE', data: { orderId: 'o1' } }]);
 
     const result = await handler(event);
 
@@ -62,5 +59,4 @@ describe('order.subscriber handler', () => {
     expect(paymentService.createPayment).toHaveBeenCalledTimes(2);
     expect(paymentPublisher.publishPaymentCompleted).toHaveBeenCalledTimes(2);
   });
-
 });

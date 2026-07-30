@@ -72,7 +72,7 @@ export const recentOrders = [
     email: 'm.chen@example.com',
     date: '2026-07-21',
     status: 'Processing',
-    amount: 245.50,
+    amount: 245.5,
     items: 2,
   },
   {
@@ -90,7 +90,7 @@ export const recentOrders = [
     email: 'j.wilson@example.com',
     date: '2026-07-20',
     status: 'Pending',
-    amount: 399.00,
+    amount: 399.0,
     items: 4,
   },
   {

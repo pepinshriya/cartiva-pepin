@@ -1,4 +1,4 @@
-const orderRepository = require("../repositories/order.repository");
+const orderRepository = require('../repositories/order.repository');
 
 const getDailyRevenue = async () => {
   const orders = await orderRepository.scanAll();
@@ -11,10 +11,14 @@ const getDailyRevenue = async () => {
 
   for (const order of orders) {
     const createdAt = order.createdAt || order.created;
-    if (!createdAt) continue;
+    if (!createdAt) {
+      continue;
+    }
 
     const orderDate = new Date(createdAt);
-    if (orderDate < thirtyDaysAgo) continue;
+    if (orderDate < thirtyDaysAgo) {
+      continue;
+    }
 
     const dateKey = orderDate.toISOString().slice(0, 10);
     const amount = order.totalAmount || order.total || 0;
@@ -27,9 +31,7 @@ const getDailyRevenue = async () => {
     dailyMap[dateKey].orders += 1;
   }
 
-  const result = Object.values(dailyMap).sort((a, b) =>
-    a.date.localeCompare(b.date)
-  );
+  const result = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
 
   return result;
 };

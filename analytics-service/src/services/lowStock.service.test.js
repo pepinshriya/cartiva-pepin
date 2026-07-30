@@ -24,8 +24,22 @@ describe('getLowStock', () => {
     const result = await getLowStock();
 
     expect(result).toEqual([
-      { productId: 'p3', name: 'Hat', category: 'Accessories', currentStock: 1, threshold: 5, lastUpdated: null },
-      { productId: 'p1', name: 'Shirt', category: 'Clothing', currentStock: 3, threshold: 5, lastUpdated: null },
+      {
+        productId: 'p3',
+        name: 'Hat',
+        category: 'Accessories',
+        currentStock: 1,
+        threshold: 5,
+        lastUpdated: null,
+      },
+      {
+        productId: 'p1',
+        name: 'Shirt',
+        category: 'Clothing',
+        currentStock: 3,
+        threshold: 5,
+        lastUpdated: null,
+      },
     ]);
   });
 

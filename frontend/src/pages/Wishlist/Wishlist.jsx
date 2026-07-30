@@ -14,7 +14,9 @@ const Wishlist = () => {
           <Heart size={64} color="#D1D5DB" />
           <h2>Your wishlist is empty</h2>
           <p>Save items you love for later.</p>
-          <Link to="/shop" className={styles.shopLink}>Browse Products</Link>
+          <Link to="/shop" className={styles.shopLink}>
+            Browse Products
+          </Link>
         </div>
       </div>
     );
@@ -37,13 +39,23 @@ const Wishlist = () => {
                 <img src={item.image} alt={item.name} />
               </Link>
               <div className={styles.info}>
-                <Link to={`/product/${item.id}`} className={styles.name}>{item.name}</Link>
+                <Link to={`/product/${item.id}`} className={styles.name}>
+                  {item.name}
+                </Link>
                 <span className={styles.price}>${item.price.toFixed(2)}</span>
                 <div className={styles.actions}>
                   <button
                     className={styles.addBtn}
                     onClick={() => {
-                      dispatch({ type: 'ADD_TO_CART', payload: { ...item, size: item.sizes?.[0] || 'M', color: item.colors?.[0] || '#000', quantity: 1 } });
+                      dispatch({
+                        type: 'ADD_TO_CART',
+                        payload: {
+                          ...item,
+                          size: item.sizes?.[0] || 'M',
+                          color: item.colors?.[0] || '#000',
+                          quantity: 1,
+                        },
+                      });
                     }}
                   >
                     <ShoppingBag size={16} /> Add to Cart

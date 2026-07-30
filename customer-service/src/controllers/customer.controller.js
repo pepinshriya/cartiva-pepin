@@ -12,7 +12,10 @@ const getCustomers = async (req, res, next) => {
 
 const getCustomerById = async (req, res, next) => {
   try {
-    const customer = await customerService.getCustomerById(req.params.id, req.headers.authorization);
+    const customer = await customerService.getCustomerById(
+      req.params.id,
+      req.headers.authorization
+    );
     return response.success(res, customer);
   } catch (err) {
     next(err);
@@ -21,7 +24,10 @@ const getCustomerById = async (req, res, next) => {
 
 const getCustomerOrders = async (req, res, next) => {
   try {
-    const orders = await customerService.getCustomerOrders(req.params.id, req.headers.authorization);
+    const orders = await customerService.getCustomerOrders(
+      req.params.id,
+      req.headers.authorization
+    );
     return response.success(res, orders);
   } catch (err) {
     next(err);
@@ -31,7 +37,11 @@ const getCustomerOrders = async (req, res, next) => {
 const updateCustomerStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
-    const customer = await customerService.updateCustomerStatus(req.params.id, status, req.headers.authorization);
+    const customer = await customerService.updateCustomerStatus(
+      req.params.id,
+      status,
+      req.headers.authorization
+    );
     return response.success(res, customer);
   } catch (err) {
     next(err);

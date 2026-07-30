@@ -29,9 +29,7 @@ describe('getDailyRevenue', () => {
   });
 
   it('should exclude orders older than 30 days', async () => {
-    orderRepository.scanAll.mockResolvedValue([
-      { createdAt: daysAgo(45), totalAmount: 500 },
-    ]);
+    orderRepository.scanAll.mockResolvedValue([{ createdAt: daysAgo(45), totalAmount: 500 }]);
 
     const result = await getDailyRevenue();
 
@@ -39,9 +37,7 @@ describe('getDailyRevenue', () => {
   });
 
   it('should skip orders with no createdAt', async () => {
-    orderRepository.scanAll.mockResolvedValue([
-      { totalAmount: 100 },
-    ]);
+    orderRepository.scanAll.mockResolvedValue([{ totalAmount: 100 }]);
 
     const result = await getDailyRevenue();
 

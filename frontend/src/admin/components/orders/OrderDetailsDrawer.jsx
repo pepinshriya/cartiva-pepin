@@ -1,17 +1,33 @@
 import {
-  Drawer, Box, Typography, IconButton, Divider, Chip, Table,
-  TableBody, TableCell, TableContainer, TableHead, TableRow, Skeleton,
+  Drawer,
+  Box,
+  Typography,
+  IconButton,
+  Divider,
+  Chip,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Skeleton,
 } from '@mui/material';
 import { X, ShoppingCart, User, MapPin, FileText } from 'lucide-react';
 import { OrderStatusChip, PaymentStatusChip } from './OrderStatusChip';
 import OrderTimeline from './OrderTimeline';
 
 const formatDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) {
+    return '—';
+  }
   try {
     return new Date(iso).toLocaleString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   } catch {
     return iso;
@@ -35,12 +51,32 @@ const InfoRow = ({ icon: Icon, label, value }) => (
 );
 
 const OrderDetailsDrawer = ({
-  open, onClose, order, timeline, timelineLoading, onUpdateStatus,
+  open,
+  onClose,
+  order,
+  timeline,
+  timelineLoading,
+  onUpdateStatus,
 }) => {
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
-      <Box sx={{ width: { xs: '85vw', sm: 480 }, display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <Box sx={{ p: 3, pb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Box
+        sx={{
+          width: { xs: '85vw', sm: 480 },
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+        }}
+      >
+        <Box
+          sx={{
+            p: 3,
+            pb: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
           <Typography variant="h6" fontWeight={700}>
             Order Details
           </Typography>
@@ -65,14 +101,26 @@ const OrderDetailsDrawer = ({
                 <PaymentStatusChip status={order.paymentStatus} />
               </Box>
 
-              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography
+                variant="subtitle2"
+                fontWeight={600}
+                sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}
+              >
                 <ShoppingCart size={16} color="#64748b" />
                 Order Info
               </Typography>
 
               <InfoRow icon={FileText} label="Order ID" value={order.orderId} />
-              <InfoRow icon={ShoppingCart} label="Total Amount" value={`$${order.totalAmount?.toFixed(2)}`} />
-              <InfoRow icon={ShoppingCart} label="Items" value={`${order.items?.length ?? 0} item(s)`} />
+              <InfoRow
+                icon={ShoppingCart}
+                label="Total Amount"
+                value={`$${order.totalAmount?.toFixed(2)}`}
+              />
+              <InfoRow
+                icon={ShoppingCart}
+                label="Items"
+                value={`${order.items?.length ?? 0} item(s)`}
+              />
               <InfoRow icon={FileText} label="Created" value={formatDate(order.createdAt)} />
               {order.updatedAt && (
                 <InfoRow icon={FileText} label="Last Updated" value={formatDate(order.updatedAt)} />
@@ -80,7 +128,11 @@ const OrderDetailsDrawer = ({
 
               <Divider sx={{ my: 2.5 }} />
 
-              <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography
+                variant="subtitle2"
+                fontWeight={600}
+                sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}
+              >
                 <User size={16} color="#64748b" />
                 Customer
               </Typography>
@@ -91,15 +143,29 @@ const OrderDetailsDrawer = ({
               {order.shippingAddress && (
                 <>
                   <Divider sx={{ my: 2.5 }} />
-                  <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={600}
+                    sx={{ mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}
+                  >
                     <MapPin size={16} color="#64748b" />
                     Shipping Address
                   </Typography>
-                  {order.shippingAddress.line1 && <InfoRow icon={MapPin} label="Address" value={order.shippingAddress.line1} />}
-                  {order.shippingAddress.city && <InfoRow icon={MapPin} label="City" value={order.shippingAddress.city} />}
-                  {order.shippingAddress.state && <InfoRow icon={MapPin} label="State" value={order.shippingAddress.state} />}
-                  {order.shippingAddress.zip && <InfoRow icon={MapPin} label="ZIP" value={order.shippingAddress.zip} />}
-                  {order.shippingAddress.country && <InfoRow icon={MapPin} label="Country" value={order.shippingAddress.country} />}
+                  {order.shippingAddress.line1 && (
+                    <InfoRow icon={MapPin} label="Address" value={order.shippingAddress.line1} />
+                  )}
+                  {order.shippingAddress.city && (
+                    <InfoRow icon={MapPin} label="City" value={order.shippingAddress.city} />
+                  )}
+                  {order.shippingAddress.state && (
+                    <InfoRow icon={MapPin} label="State" value={order.shippingAddress.state} />
+                  )}
+                  {order.shippingAddress.zip && (
+                    <InfoRow icon={MapPin} label="ZIP" value={order.shippingAddress.zip} />
+                  )}
+                  {order.shippingAddress.country && (
+                    <InfoRow icon={MapPin} label="Country" value={order.shippingAddress.country} />
+                  )}
                 </>
               )}
 
@@ -114,17 +180,41 @@ const OrderDetailsDrawer = ({
                     <Table size="small">
                       <TableHead>
                         <TableRow>
-                          <TableCell sx={{ fontWeight: 600, color: '#64748b', fontSize: 11 }}>Item</TableCell>
-                          <TableCell sx={{ fontWeight: 600, color: '#64748b', fontSize: 11, textAlign: 'right' }}>Qty</TableCell>
-                          <TableCell sx={{ fontWeight: 600, color: '#64748b', fontSize: 11, textAlign: 'right' }}>Price</TableCell>
+                          <TableCell sx={{ fontWeight: 600, color: '#64748b', fontSize: 11 }}>
+                            Item
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              fontWeight: 600,
+                              color: '#64748b',
+                              fontSize: 11,
+                              textAlign: 'right',
+                            }}
+                          >
+                            Qty
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              fontWeight: 600,
+                              color: '#64748b',
+                              fontSize: 11,
+                              textAlign: 'right',
+                            }}
+                          >
+                            Price
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {order.items.map((item, i) => (
                           <TableRow key={i}>
                             <TableCell sx={{ fontSize: 13 }}>{item.name}</TableCell>
-                            <TableCell sx={{ fontSize: 13, textAlign: 'right' }}>{item.quantity}</TableCell>
-                            <TableCell sx={{ fontSize: 13, textAlign: 'right' }}>${(item.price * item.quantity).toFixed(2)}</TableCell>
+                            <TableCell sx={{ fontSize: 13, textAlign: 'right' }}>
+                              {item.quantity}
+                            </TableCell>
+                            <TableCell sx={{ fontSize: 13, textAlign: 'right' }}>
+                              ${(item.price * item.quantity).toFixed(2)}
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -135,7 +225,14 @@ const OrderDetailsDrawer = ({
 
               <Divider sx={{ my: 2.5 }} />
 
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  mb: 2,
+                }}
+              >
                 <Typography variant="subtitle2" fontWeight={600}>
                   Progress
                 </Typography>

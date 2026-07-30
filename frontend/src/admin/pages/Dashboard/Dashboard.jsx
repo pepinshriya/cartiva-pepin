@@ -9,15 +9,8 @@ import TopProducts from '../../components/dashboard/TopProducts';
 import useDashboard from '../../hooks/useDashboard';
 
 const Dashboard = () => {
-  const {
-    stats,
-    revenueAnalytics,
-    recentOrders,
-    topProducts,
-    lowStockProducts,
-    error,
-    refresh,
-  } = useDashboard();
+  const { stats, revenueAnalytics, recentOrders, topProducts, lowStockProducts, error, refresh } =
+    useDashboard();
 
   return (
     <Box>
@@ -25,7 +18,12 @@ const Dashboard = () => {
         <Typography
           variant="h5"
           fontWeight={700}
-          sx={{ display: 'flex', alignItems: 'center', gap: 1.5, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            fontSize: { xs: '1.1rem', sm: '1.25rem' },
+          }}
         >
           <LayoutDashboard size={22} />
           Dashboard

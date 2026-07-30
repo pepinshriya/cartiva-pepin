@@ -35,16 +35,18 @@ describe('getCustomers', () => {
 
     const result = await customerService.getCustomers();
 
-    expect(result).toEqual([{
-      customerId: 'u1',
-      email: 'a@test.com',
-      name: 'Alice',
-      phone: '',
-      status: 'ACTIVE',
-      createdAt: '2024-01-01T00:00:00.000Z',
-      totalOrders: 0,
-      totalSpending: 0,
-    }]);
+    expect(result).toEqual([
+      {
+        customerId: 'u1',
+        email: 'a@test.com',
+        name: 'Alice',
+        phone: '',
+        status: 'ACTIVE',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        totalOrders: 0,
+        totalSpending: 0,
+      },
+    ]);
   });
 });
 
@@ -55,9 +57,9 @@ describe('getCustomerById', () => {
   });
 
   it('should return customer with order totals when found', async () => {
-    cognitoMock.on(AdminGetUserCommand).resolves(
-      buildCognitoUser({ sub: 'u1', email: 'a@test.com', name: 'Alice' })
-    );
+    cognitoMock
+      .on(AdminGetUserCommand)
+      .resolves(buildCognitoUser({ sub: 'u1', email: 'a@test.com', name: 'Alice' }));
     axios.get.mockResolvedValue({
       data: { data: [{ totalAmount: 100 }, { totalAmount: 200 }] },
     });
@@ -108,9 +110,9 @@ describe('updateCustomerStatus', () => {
 
   it('should enable the user when status is ACTIVE', async () => {
     cognitoMock.on(AdminEnableUserCommand).resolves({});
-    cognitoMock.on(AdminGetUserCommand).resolves(
-      buildCognitoUser({ sub: 'u1', email: 'a@test.com', name: 'Alice', enabled: true })
-    );
+    cognitoMock
+      .on(AdminGetUserCommand)
+      .resolves(buildCognitoUser({ sub: 'u1', email: 'a@test.com', name: 'Alice', enabled: true }));
     axios.get.mockResolvedValue({ data: { data: [] } });
 
     const result = await customerService.updateCustomerStatus('u1', 'ACTIVE');
@@ -121,9 +123,11 @@ describe('updateCustomerStatus', () => {
 
   it('should disable the user when status is not ACTIVE', async () => {
     cognitoMock.on(AdminDisableUserCommand).resolves({});
-    cognitoMock.on(AdminGetUserCommand).resolves(
-      buildCognitoUser({ sub: 'u1', email: 'a@test.com', name: 'Alice', enabled: false })
-    );
+    cognitoMock
+      .on(AdminGetUserCommand)
+      .resolves(
+        buildCognitoUser({ sub: 'u1', email: 'a@test.com', name: 'Alice', enabled: false })
+      );
     axios.get.mockResolvedValue({ data: { data: [] } });
 
     const result = await customerService.updateCustomerStatus('u1', 'DISABLED');

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import {
   login as cognitoLogin,
   register as cognitoRegister,
@@ -7,18 +7,18 @@ import {
   getSession,
   confirmRegistration as cognitoConfirmRegistration,
   resendConfirmationCode as cognitoResendConfirmationCode,
-} from "../auth/cognitoService";
+} from '../auth/cognitoService';
 
 const AuthContext = createContext(null);
 
 const decodeJwtPayload = (token) => {
   try {
-    const base64 = token.split(".")[1];
+    const base64 = token.split('.')[1];
     const json = decodeURIComponent(
       atob(base64)
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
     );
     return JSON.parse(json);
   } catch {
@@ -51,12 +51,12 @@ export const AuthProvider = ({ children }) => {
 
       const payload = decodeJwtPayload(idToken);
 
-      const groups = payload["cognito:groups"] || [];
+      const groups = payload['cognito:groups'] || [];
 
       setUser({
-        email: payload.email || "",
-        name: payload.name || "",
-        sub: payload.sub || "",
+        email: payload.email || '',
+        name: payload.name || '',
+        sub: payload.sub || '',
         groups,
         accessToken,
         idToken,
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }) => {
     const result = await cognitoLogin(email, password);
 
     if (!result.isSignedIn) {
-      const step = result.nextStep?.signInStep || "UNKNOWN";
+      const step = result.nextStep?.signInStep || 'UNKNOWN';
       throw new Error(`Additional step required: ${step}`);
     }
 
@@ -89,16 +89,16 @@ export const AuthProvider = ({ children }) => {
     const idToken = session.tokens?.idToken?.toString();
 
     if (!accessToken || !idToken) {
-      throw new Error("Failed to retrieve tokens after login");
+      throw new Error('Failed to retrieve tokens after login');
     }
 
     const payload = decodeJwtPayload(idToken);
-    const groups = payload["cognito:groups"] || [];
+    const groups = payload['cognito:groups'] || [];
 
     setUser({
-      email: payload.email || "",
-      name: payload.name || "",
-      sub: payload.sub || "",
+      email: payload.email || '',
+      name: payload.name || '',
+      sub: payload.sub || '',
       groups,
       accessToken,
       idToken,
@@ -128,7 +128,17 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, confirmRegistration, resendConfirmationCode }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        confirmRegistration,
+        resendConfirmationCode,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -137,7 +147,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
+    throw new Error('useAuth must be used within AuthProvider');
   }
   return context;
 };

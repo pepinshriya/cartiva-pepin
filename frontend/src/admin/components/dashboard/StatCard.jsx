@@ -2,7 +2,12 @@ import { Card, CardContent, Typography, Box } from '@mui/material';
 import { TrendingUp, ShoppingCart, Package, Users, AlertTriangle, Star } from 'lucide-react';
 
 const iconMap = {
-  TrendingUp, ShoppingCart, Package, Users, AlertTriangle, Star,
+  TrendingUp,
+  ShoppingCart,
+  Package,
+  Users,
+  AlertTriangle,
+  Star,
 };
 
 const StatCard = ({ label, value, change, changeType, icon, color, bgColor }) => {

@@ -1,11 +1,11 @@
-import axios from "axios";
-import { getAccessToken } from "../auth/cognitoService";
-import API_CONFIG from "../config/api";
+import axios from 'axios';
+import { getAccessToken } from '../auth/cognitoService';
+import API_CONFIG from '../config/api';
 
 const cartApi = axios.create({
   baseURL: API_CONFIG.cart.baseURL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
@@ -25,7 +25,7 @@ cartApi.interceptors.request.use(
 );
 
 export const createCart = async (userId) => {
-  const response = await cartApi.post("/", { userId });
+  const response = await cartApi.post('/', { userId });
   return response.data.data;
 };
 

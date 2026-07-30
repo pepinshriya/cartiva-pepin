@@ -1,6 +1,13 @@
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Skeleton, Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Skeleton,
+  Typography,
 } from '@mui/material';
 
 const headCells = [
@@ -48,7 +55,9 @@ const InventoryReportTable = ({ data, loading }) => {
 
   if (!data.length) {
     return (
-      <Paper sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}>
+      <Paper
+        sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)', p: 6, textAlign: 'center' }}
+      >
         <Typography color="text.secondary">No inventory data found.</Typography>
       </Paper>
     );
@@ -77,7 +86,11 @@ const InventoryReportTable = ({ data, loading }) => {
           </TableHead>
           <TableBody>
             {data.map((row, i) => (
-              <TableRow key={row.productId || i} hover sx={{ '&:last-child td': { borderBottom: 0 } }}>
+              <TableRow
+                key={row.productId || i}
+                hover
+                sx={{ '&:last-child td': { borderBottom: 0 } }}
+              >
                 <TableCell sx={{ fontSize: 13 }}>
                   <Typography variant="body2" fontWeight={500}>
                     {row.productName || 'Unknown'}
@@ -92,7 +105,9 @@ const InventoryReportTable = ({ data, loading }) => {
                 >
                   {row.currentStock ?? 0}
                 </TableCell>
-                <TableCell sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}>
+                <TableCell
+                  sx={{ fontSize: 13, color: '#64748b', display: { xs: 'none', md: 'table-cell' } }}
+                >
                   {row.threshold ?? 0}
                 </TableCell>
                 <TableCell sx={{ fontSize: 13, fontWeight: 600 }}>

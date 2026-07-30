@@ -1,10 +1,10 @@
-import axios from "axios";
-import { getAccessToken } from "../auth/cognitoService";
-import API_CONFIG from "../config/api";
+import axios from 'axios';
+import { getAccessToken } from '../auth/cognitoService';
+import API_CONFIG from '../config/api';
 
 const productApi = axios.create({
   baseURL: API_CONFIG.products.baseURL,
-  headers: { "Content-Type": "application/json" },
+  headers: { 'Content-Type': 'application/json' },
 });
 
 productApi.interceptors.request.use(
@@ -26,14 +26,14 @@ productApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      window.location.href = "/login";
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
 
 const transformProduct = (product) => {
-  const primaryImage = product.imageUrl || product.image || "";
+  const primaryImage = product.imageUrl || product.image || '';
   return {
     id: product.productId,
     productId: product.productId,
@@ -56,11 +56,11 @@ const transformProduct = (product) => {
 
 export const getProducts = async () => {
   try {
-    const response = await productApi.get("/api/products");
+    const response = await productApi.get('/api/products');
     const items = response.data?.data ?? response.data ?? [];
     return items.map(transformProduct);
   } catch (error) {
-    console.error("Failed to fetch products:", error);
+    console.error('Failed to fetch products:', error);
     throw error;
   }
 };
@@ -71,7 +71,7 @@ export const getProductById = async (productId) => {
     const product = response.data?.data ?? response.data;
     return transformProduct(product);
   } catch (error) {
-    console.error("Failed to fetch product:", error);
+    console.error('Failed to fetch product:', error);
     throw error;
   }
 };
@@ -83,16 +83,16 @@ export const createProduct = async (productData) => {
       description: productData.description,
       price: Number(productData.price),
       originalPrice: productData.originalPrice ? Number(productData.originalPrice) : null,
-      imageUrl: productData.image || productData.imageUrl || "",
+      imageUrl: productData.image || productData.imageUrl || '',
       category: productData.category,
       inStock: productData.inStock ?? true,
     };
 
-    const response = await productApi.post("/api/products", payload);
+    const response = await productApi.post('/api/products', payload);
     const created = response.data?.data ?? response.data;
     return transformProduct(created);
   } catch (error) {
-    console.error("Failed to create product:", error);
+    console.error('Failed to create product:', error);
     throw error;
   }
 };
@@ -104,7 +104,7 @@ export const updateProduct = async (productId, productData) => {
       description: productData.description,
       price: Number(productData.price),
       originalPrice: productData.originalPrice ? Number(productData.originalPrice) : null,
-      imageUrl: productData.image || productData.imageUrl || "",
+      imageUrl: productData.image || productData.imageUrl || '',
       category: productData.category,
       inStock: productData.inStock ?? true,
     };
@@ -113,7 +113,7 @@ export const updateProduct = async (productId, productData) => {
     const updated = response.data?.data ?? response.data;
     return transformProduct(updated);
   } catch (error) {
-    console.error("Failed to update product:", error);
+    console.error('Failed to update product:', error);
     throw error;
   }
 };
@@ -122,7 +122,7 @@ export const deleteProduct = async (productId) => {
   try {
     await productApi.delete(`/api/products/${productId}`);
   } catch (error) {
-    console.error("Failed to delete product:", error);
+    console.error('Failed to delete product:', error);
     throw error;
   }
 };
