@@ -20,6 +20,7 @@ Thumbs.db
 dist/
 build/
 .next/
+coverage/
 
 # Logs
 *.log
@@ -27,3 +28,6 @@ npm-debug.log*
 
 # Serverless
 .serverless/
+
+# Deployment artifacts
+*.zip
