@@ -38,7 +38,7 @@ resource "aws_iam_role_policy_attachment" "logs" {
 }
 
 data "aws_iam_policy_document" "dynamodb" {
-  count = var.dynamodb_table_arn != null ? 1 : 0
+  count = var.enable_dynamodb_access ? 1 : 0
   statement {
     effect = "Allow"
     actions = [
@@ -59,19 +59,19 @@ data "aws_iam_policy_document" "dynamodb" {
 }
 
 resource "aws_iam_policy" "dynamodb" {
-  count  = var.dynamodb_table_arn != null ? 1 : 0
+  count  = var.enable_dynamodb_access ? 1 : 0
   name   = "${var.role_name}-dynamodb"
   policy = data.aws_iam_policy_document.dynamodb[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "dynamodb" {
-  count      = var.dynamodb_table_arn != null ? 1 : 0
+  count      = var.enable_dynamodb_access ? 1 : 0
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.dynamodb[0].arn
 }
 
 data "aws_iam_policy_document" "sns_publish" {
-  count = length(var.sns_publish_topic_arns) > 0 ? 1 : 0
+  count = var.enable_sns_publish ? 1 : 0
   statement {
     effect    = "Allow"
     actions   = ["sns:Publish"]
@@ -80,19 +80,19 @@ data "aws_iam_policy_document" "sns_publish" {
 }
 
 resource "aws_iam_policy" "sns_publish" {
-  count  = length(var.sns_publish_topic_arns) > 0 ? 1 : 0
+  count  = var.enable_sns_publish ? 1 : 0
   name   = "${var.role_name}-sns-publish"
   policy = data.aws_iam_policy_document.sns_publish[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "sns_publish" {
-  count      = length(var.sns_publish_topic_arns) > 0 ? 1 : 0
+  count      = var.enable_sns_publish ? 1 : 0
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.sns_publish[0].arn
 }
 
 data "aws_iam_policy_document" "sns_subscribe" {
-  count = length(var.sns_subscribe_topic_arns) > 0 ? 1 : 0
+  count = var.enable_sns_subscribe ? 1 : 0
   statement {
     effect    = "Allow"
     actions   = ["sns:Subscribe", "sns:ListSubscriptionsByTopic"]
@@ -101,13 +101,13 @@ data "aws_iam_policy_document" "sns_subscribe" {
 }
 
 resource "aws_iam_policy" "sns_subscribe" {
-  count  = length(var.sns_subscribe_topic_arns) > 0 ? 1 : 0
+  count  = var.enable_sns_subscribe ? 1 : 0
   name   = "${var.role_name}-sns-subscribe"
   policy = data.aws_iam_policy_document.sns_subscribe[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "sns_subscribe" {
-  count      = length(var.sns_subscribe_topic_arns) > 0 ? 1 : 0
+  count      = var.enable_sns_subscribe ? 1 : 0
   role       = aws_iam_role.this.name
   policy_arn = aws_iam_policy.sns_subscribe[0].arn
 }

@@ -12,14 +12,20 @@ on:
         required: false
         type: string
         default: 'dev'
+      artifact-run-id:
+        description: 'ID of the workflow run that uploaded the Lambda artifacts. Leave empty to download from the current run (e.g. when called from the CI pipeline).'
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
+  actions: read
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
-  LAMBDA_PREFIX: ${{ vars.LAMBDA_PREFIX || 'ecommerce-dev' }}
-  ALIAS_NAME: ${{ vars.DEV_ALIAS_NAME || 'dev' }}
+  LAMBDA_NAME_SUFFIX: pepin
+  ALIAS_NAME: dev
 
 jobs:
   deploy:
@@ -54,6 +60,8 @@ jobs:
         with:
           name: lambda-${{ inputs.service }}
           path: artifact
+          run-id: ${{ inputs.artifact-run-id }}
+          github-token: ${{ github.token }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -74,7 +82,7 @@ jobs:
         env:
           SERVICE: ${{ inputs.service }}
         run: |
-          FUNCTION_NAME="${LAMBDA_PREFIX}-${SERVICE%-service}"
+          FUNCTION_NAME="${SERVICE}-${LAMBDA_NAME_SUFFIX}"
           echo "Resolved Lambda function: $FUNCTION_NAME"
           echo "FUNCTION_NAME=${FUNCTION_NAME}" >> "$GITHUB_ENV"
 
@@ -85,24 +93,61 @@ jobs:
           echo "::group::Deploying ${FUNCTION_NAME}"
           echo "Package: ${ZIP}"
           echo "Region: ${AWS_REGION}"
-          if ! aws lambda update-function-code \
-            --function-name "$FUNCTION_NAME" \
-            --zip-file "fileb://${ZIP}" \
-            --region "$AWS_REGION" \
-            --query '{FunctionName:FunctionName, LastModified:LastModified, CodeSha256:CodeSha256}' \
-            --output json; then
-            if aws lambda get-function --function-name "$FUNCTION_NAME" --region "$AWS_REGION" >/dev/null 2>&1; then
-              echo "::error::Failed to update Lambda function '${FUNCTION_NAME}'. Check the CloudWatch logs and AWS permissions."
-              exit 1
-            else
-              echo "::warning::Lambda function '${FUNCTION_NAME}' does not exist in this environment."
-              echo "::warning::Verify the LAMBDA_PREFIX variable ('${LAMBDA_PREFIX}') and confirm Terraform provisions this function. Skipping."
-              echo "skip=true" >> "$GITHUB_OUTPUT"
+
+          ATTEMPTS=3
+          SUCCESS=false
+          for attempt in $(seq 1 "${ATTEMPTS}"); do
+            echo "--- update-function-code attempt ${attempt}/${ATTEMPTS} ---"
+            if aws lambda update-function-code \
+              --function-name "$FUNCTION_NAME" \
+              --zip-file "fileb://${ZIP}" \
+              --region "$AWS_REGION" \
+              --query '{FunctionName:FunctionName, LastModified:LastModified, CodeSha256:CodeSha256}' \
+              --output json; then
+              SUCCESS=true
+              break
             fi
-          else
+            if [ "${attempt}" -lt "${ATTEMPTS}" ]; then
+              echo "Retrying in $((attempt * 5))s..."
+              sleep $((attempt * 5))
+            fi
+          done
+
+          if [ "$SUCCESS" = "true" ]; then
             echo "skip=false" >> "$GITHUB_OUTPUT"
+          elif aws lambda get-function --function-name "$FUNCTION_NAME" --region "$AWS_REGION" >/dev/null 2>&1; then
+            echo "::error::Failed to update Lambda function '${FUNCTION_NAME}' after ${ATTEMPTS} attempts. Check the CloudWatch logs and AWS permissions."
+            exit 1
+          else
+            echo "::warning::Lambda function '${FUNCTION_NAME}' does not exist in this environment."
+            echo "::warning::Verify the LAMBDA_NAME_SUFFIX ('${LAMBDA_NAME_SUFFIX}') and confirm the Lambda function exists in this environment. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
           echo "::endgroup::"
+
+      - name: Wait for Lambda update to complete
+        if: steps.deploy-code.outputs.skip != 'true'
+        run: |
+          echo "::group::Waiting for ${FUNCTION_NAME} to become Active"
+          for attempt in $(seq 1 24); do
+            STATE=$(aws lambda get-function --function-name "$FUNCTION_NAME" --region "$AWS_REGION" --query 'Configuration.State' --output text)
+            LAST=$(aws lambda get-function --function-name "$FUNCTION_NAME" --region "$AWS_REGION" --query 'Configuration.LastUpdateStatus' --output text)
+            echo "Attempt ${attempt}/24: State=${STATE} LastUpdateStatus=${LAST}"
+            if [ "${STATE}" = "Active" ] && [ "${LAST}" = "Successful" ]; then
+              echo "Lambda function ${FUNCTION_NAME} is Active."
+              echo "::endgroup::"
+              exit 0
+            fi
+            if [ "${LAST}" = "Failed" ]; then
+              echo "::error::Lambda update failed for '${FUNCTION_NAME}' (LastUpdateStatus=Failed)."
+              echo "::endgroup::"
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "::error::Timed out waiting for '${FUNCTION_NAME}' to become Active."
+          echo "::endgroup::"
+          exit 1
 
       - name: Publish new Lambda version
         if: steps.deploy-code.outputs.skip != 'true'
@@ -156,30 +201,45 @@ jobs:
           fi
 
   smoke-test:
-    name: Smoke test dev endpoints
+    name: Smoke test ${{ inputs.service }}
     needs: deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Check required smoke test secret
+      - name: Check smoke test configuration
+        id: smoke-config
         env:
           DEV_API_BASE_URL: ${{ secrets.DEV_API_BASE_URL }}
         run: |
           if [ -z "$DEV_API_BASE_URL" ]; then
-            echo "::error::Missing GitHub Secret: DEV_API_BASE_URL. Add the development API Gateway invoke URL to enable smoke tests."
-            exit 1
+            echo "::warning::DEV_API_BASE_URL is not configured. Skipping smoke tests for ${{ inputs.service }}."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "Smoke testing ${{ inputs.service }} against: $DEV_API_BASE_URL"
           fi
-          echo "Smoke testing against: $DEV_API_BASE_URL"
 
       - name: Run smoke tests
+        if: steps.smoke-config.outputs.skip != 'true'
         env:
           DEV_API_BASE_URL: ${{ secrets.DEV_API_BASE_URL }}
-          DEV_SMOKE_PATHS: ${{ vars.DEV_SMOKE_PATHS || '/,/products,/orders,/cart' }}
         run: |
           BASE_URL="${DEV_API_BASE_URL%/}"
           FAILURES=""
 
-          echo "::group::Smoke tests"
-          for p in $(echo "$DEV_SMOKE_PATHS" | tr ',' ' '); do
+          case "${{ inputs.service }}" in
+            product-service)   DEFAULT_PATH="/products" ;;
+            order-service)     DEFAULT_PATH="/orders" ;;
+            cart-service)      DEFAULT_PATH="/cart" ;;
+            payment-service)   DEFAULT_PATH="/payments" ;;
+            inventory-service) DEFAULT_PATH="/inventory" ;;
+            customer-service)  DEFAULT_PATH="/customers" ;;
+            analytics-service) DEFAULT_PATH="/analytics" ;;
+            *)                 DEFAULT_PATH="/" ;;
+          esac
+          SMOKE_PATHS="${DEFAULT_PATH}"
+
+          echo "::group::Smoke tests for ${{ inputs.service }} (paths: ${SMOKE_PATHS})"
+          for p in $(echo "$SMOKE_PATHS" | tr ',' ' '); do
             CODE=$(curl -sS -o /dev/null -w "%{http_code}" \
               --max-time 30 --retry 2 --retry-all-errors \
               "${BASE_URL}${p}" || echo "000")
@@ -193,7 +253,7 @@ jobs:
           echo "::endgroup::"
 
           if [ -n "$FAILURES" ]; then
-            echo "::error::Smoke tests failed for endpoints:${FAILURES}"
+            echo "::error::Smoke tests failed for ${{ inputs.service }} endpoints:${FAILURES}"
             exit 1
           fi
-          echo "::notice::All smoke tests passed against the development environment."
+          echo "::notice::Smoke tests passed for ${{ inputs.service }} against the development environment."

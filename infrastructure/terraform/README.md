@@ -4,17 +4,16 @@
 
 - Terraform >= 1.5
 - AWS credentials configured (environment variables, `~/.aws/credentials`, or IAM role)
-- Backend S3 bucket and DynamoDB lock table created manually:
+- Backend S3 bucket created manually:
 
 ```powershell
-aws s3 mb s3://ecommerce-terraform-state --region ap-southeast-1
-aws dynamodb create-table `
-    --table-name ecommerce-terraform-state-lock `
-    --attribute-definitions AttributeName=LockID,AttributeType=S `
-    --key-schema AttributeName=LockID,KeyType=HASH `
-    --billing-mode PAY_PER_REQUEST `
-    --region ap-southeast-1
+aws s3 mb s3://ecommerce-terraform-state-726101441380 --region ap-southeast-1
 ```
+
+> **Note:** DynamoDB state locking is intentionally disabled. The AWS Academy account has an
+> Organization SCP that explicitly denies `dynamodb:CreateTable`, so the lock table
+> `ecommerce-terraform-state-lock` cannot be created and the S3 backend runs without
+> `dynamodb_table`.
 
 ## Module Structure
 

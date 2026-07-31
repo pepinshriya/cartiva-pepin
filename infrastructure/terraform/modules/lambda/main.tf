@@ -9,7 +9,22 @@ data "archive_file" "this" {
   }
 }
 
+data "aws_lambda_function" "existing" {
+  count = var.existing_function_name != null ? 1 : 0
+
+  function_name = var.existing_function_name
+}
+
+locals {
+  function_arn  = var.existing_function_name != null ? data.aws_lambda_function.existing[0].arn : aws_lambda_function.this[0].arn
+  function_name = var.existing_function_name != null ? data.aws_lambda_function.existing[0].function_name : aws_lambda_function.this[0].function_name
+  invoke_arn    = var.existing_function_name != null ? data.aws_lambda_function.existing[0].invoke_arn : aws_lambda_function.this[0].invoke_arn
+  qualified_arn = var.existing_function_name != null ? data.aws_lambda_function.existing[0].qualified_arn : aws_lambda_function.this[0].qualified_arn
+}
+
 resource "aws_lambda_function" "this" {
+  count = var.existing_function_name != null ? 0 : 1
+
   function_name = var.function_name
   role          = var.role_arn
   handler       = "${var.handler}.handler"
@@ -53,8 +68,8 @@ resource "aws_lambda_alias" "this" {
 
   name             = var.alias_name
   description      = "Deployment alias for ${var.function_name}"
-  function_name    = aws_lambda_function.this.arn
-  function_version = aws_lambda_function.this.version
+  function_name    = local.function_arn
+  function_version = var.existing_function_name != null ? "$LATEST" : aws_lambda_function.this[0].version
 
   lifecycle {
     ignore_changes = [function_version]

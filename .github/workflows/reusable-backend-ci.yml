@@ -46,8 +46,7 @@ jobs:
       - name: Run all tests
         run: npm test --if-present
 
-      - name: Build frontend
-        if: inputs.service == 'frontend'
+      - name: Build
         run: npm run build --if-present
 
       - name: Package Lambda into ZIP artifact
@@ -139,3 +138,4 @@ jobs:
           name: lambda-${{ inputs.service }}
           path: ${{ inputs.service }}.zip
           if-no-files-found: error
+          retention-days: 7

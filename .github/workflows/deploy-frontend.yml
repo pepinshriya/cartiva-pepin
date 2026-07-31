@@ -10,12 +10,69 @@ on:
         type: choice
         options:
           - dev
+      artifact_run_id:
+        description: 'Optional ID of the CI workflow run that built the ZIP artifact (leave empty to use the current run)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
 
 jobs:
-  backend-deploy:
-    name: Deploy
-    uses: ./.github/workflows/reusable-backend-deploy.yml
-    with:
-      service: frontend
-      environment: ${{ inputs.environment || 'dev' }}
-    secrets: inherit
+  deploy:
+    name: Deploy frontend to S3 + CloudFront
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'dev' }}
+    steps:
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-frontend
+          path: artifact
+          run-id: ${{ inputs.artifact_run_id }}
+          github-token: ${{ github.token }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync build to S3
+        env:
+          S3_BUCKET: cartiva-frontend-pepin-04
+        run: |
+          echo "::group::Syncing frontend build to s3://${S3_BUCKET}"
+          unzip -q artifact/frontend.zip -d frontend-build
+          aws s3 sync frontend-build/dist "s3://${S3_BUCKET}" --delete --region "$AWS_REGION" --only-show-errors
+          echo "::endgroup::"
+
+      - name: Invalidate CloudFront cache
+        env:
+          CLOUDFRONT_DOMAIN: dn3bz7vki39ts.cloudfront.net
+        run: |
+          echo "::group::Invalidating CloudFront cache for https://${CLOUDFRONT_DOMAIN}/"
+          DIST_ID=$(aws cloudfront list-distributions \
+            --region "$AWS_REGION" \
+            --query "DistributionList.Items[?DomainName=='${CLOUDFRONT_DOMAIN}'].Id" \
+            --output text)
+          if [ -z "$DIST_ID" ] || [ "$DIST_ID" = "None" ]; then
+            echo "::error::No CloudFront distribution found for domain '${CLOUDFRONT_DOMAIN}'. Ensure the deploy role has cloudfront:ListDistributions."
+            exit 1
+          fi
+          INVAL=$(aws cloudfront create-invalidation \
+            --distribution-id "$DIST_ID" \
+            --paths "/*" \
+            --region "$AWS_REGION" \
+            --query "Invalidation.{Id:Id,Status:Status}" \
+            --output json)
+          echo "CloudFront invalidation: ${INVAL}"
+          echo "CloudFront invalidation: ${INVAL}" >> "$GITHUB_STEP_SUMMARY"
+          echo "::endgroup::"

@@ -92,16 +92,19 @@ module "iam_auth" {
 module "iam_product" {
   source = "../../modules/iam"
 
-  role_name          = "${local.name_prefix}-product-lambda"
-  dynamodb_table_arn = module.dynamodb_products.arn
-  tags               = local.common_tags
+  role_name              = "${local.name_prefix}-product-lambda"
+  enable_dynamodb_access = true
+  dynamodb_table_arn     = module.dynamodb_products.arn
+  tags                   = local.common_tags
 }
 
 module "iam_order" {
   source = "../../modules/iam"
 
-  role_name          = "${local.name_prefix}-order-lambda"
-  dynamodb_table_arn = module.dynamodb_orders.arn
+  role_name              = "${local.name_prefix}-order-lambda"
+  enable_dynamodb_access = true
+  dynamodb_table_arn     = module.dynamodb_orders.arn
+  enable_sns_publish     = true
   sns_publish_topic_arns = [
     module.sns_order_events.arn,
   ]
@@ -111,15 +114,17 @@ module "iam_order" {
 module "iam_cart" {
   source = "../../modules/iam"
 
-  role_name          = "${local.name_prefix}-cart-lambda"
-  dynamodb_table_arn = module.dynamodb_cart.arn
-  tags               = local.common_tags
+  role_name              = "${local.name_prefix}-cart-lambda"
+  enable_dynamodb_access = true
+  dynamodb_table_arn     = module.dynamodb_cart.arn
+  tags                   = local.common_tags
 }
 
 module "iam_payment" {
   source = "../../modules/iam"
 
-  role_name = "${local.name_prefix}-payment-lambda"
+  role_name          = "${local.name_prefix}-payment-lambda"
+  enable_sns_publish = true
   sns_publish_topic_arns = [
     module.sns_payment_events.arn,
   ]
@@ -129,7 +134,8 @@ module "iam_payment" {
 module "iam_notification" {
   source = "../../modules/iam"
 
-  role_name = "${local.name_prefix}-notification-lambda"
+  role_name            = "${local.name_prefix}-notification-lambda"
+  enable_sns_subscribe = true
   sns_subscribe_topic_arns = [
     module.sns_order_events.arn,
     module.sns_payment_events.arn,

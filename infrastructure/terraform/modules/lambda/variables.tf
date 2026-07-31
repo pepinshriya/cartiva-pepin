@@ -3,14 +3,32 @@ variable "function_name" {
   type        = string
 }
 
-variable "role_arn" {
-  description = "IAM role ARN to assign to the function"
+variable "existing_function_name" {
+  description = "Name of an existing Lambda function to adopt via a data source. When set, no aws_lambda_function is created and the function is assumed to already exist (managed out-of-band by CI/CD)."
   type        = string
+  default     = null
+}
+
+variable "role_arn" {
+  description = "IAM role ARN to assign to the function (required when creating a new function, ignored when adopting an existing one)"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.existing_function_name != null || var.role_arn != null
+    error_message = "role_arn is required when creating a new function (existing_function_name not set)."
+  }
 }
 
 variable "handler" {
   description = "Lambda handler file name (without .js extension)"
   type        = string
+  default     = null
+
+  validation {
+    condition     = var.existing_function_name != null || var.handler != null
+    error_message = "handler is required when creating a new function (existing_function_name not set)."
+  }
 }
 
 variable "runtime" {
