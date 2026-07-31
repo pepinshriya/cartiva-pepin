@@ -59,15 +59,17 @@ module "iam_auth" {
 module "iam_product" {
   source = "../../modules/iam"
 
-  role_name          = "${local.name_prefix}-product-lambda"
-  dynamodb_table_arn = module.dynamodb_products.arn
-  tags               = local.common_tags
+  role_name              = "${local.name_prefix}-product-lambda"
+  enable_dynamodb_access = true
+  dynamodb_table_arn     = module.dynamodb_products.arn
+  tags                   = local.common_tags
 }
 
 module "iam_order" {
   source = "../../modules/iam"
 
-  role_name = "${local.name_prefix}-order-lambda"
+  role_name          = "${local.name_prefix}-order-lambda"
+  enable_sns_publish = true
   sns_publish_topic_arns = [
     module.sns_order_events.arn,
   ]
@@ -77,15 +79,17 @@ module "iam_order" {
 module "iam_cart" {
   source = "../../modules/iam"
 
-  role_name          = "${local.name_prefix}-cart-lambda"
-  dynamodb_table_arn = module.dynamodb_cart.arn
-  tags               = local.common_tags
+  role_name              = "${local.name_prefix}-cart-lambda"
+  enable_dynamodb_access = true
+  dynamodb_table_arn     = module.dynamodb_cart.arn
+  tags                   = local.common_tags
 }
 
 module "iam_payment" {
   source = "../../modules/iam"
 
-  role_name = "${local.name_prefix}-payment-lambda"
+  role_name          = "${local.name_prefix}-payment-lambda"
+  enable_sns_publish = true
   sns_publish_topic_arns = [
     module.sns_payment_events.arn,
   ]
@@ -95,7 +99,8 @@ module "iam_payment" {
 module "iam_notification" {
   source = "../../modules/iam"
 
-  role_name = "${local.name_prefix}-notification-lambda"
+  role_name            = "${local.name_prefix}-notification-lambda"
+  enable_sns_subscribe = true
   sns_subscribe_topic_arns = [
     module.sns_order_events.arn,
     module.sns_payment_events.arn,
@@ -133,79 +138,64 @@ module "lambda_auth" {
 module "lambda_product" {
   source = "../../modules/lambda"
 
-  function_name = "${local.name_prefix}-product"
-  role_arn      = module.iam_product.role_arn
-  handler       = "index"
-  runtime       = "nodejs20.x"
-  memory_size   = 256
-  timeout       = 30
-  s3_bucket     = local.deployment_bucket
-  s3_key        = "product/latest.zip"
-  publish       = true
-  alias_name    = "dev"
-  environment_variables = {
-    NODE_ENV   = "dev"
-    TABLE_NAME = module.dynamodb_products.name
-  }
-  tags = local.common_tags
+  function_name          = "product-service-pepin"
+  existing_function_name = "product-service-pepin"
+  alias_name             = "dev"
+  tags                   = local.common_tags
 }
 
 module "lambda_order" {
   source = "../../modules/lambda"
 
-  function_name = "${local.name_prefix}-order"
-  role_arn      = module.iam_order.role_arn
-  handler       = "index"
-  runtime       = "nodejs20.x"
-  memory_size   = 256
-  timeout       = 30
-  s3_bucket     = local.deployment_bucket
-  s3_key        = "order/latest.zip"
-  publish       = true
-  alias_name    = "dev"
-  environment_variables = {
-    NODE_ENV = "dev"
-  }
-  tags = local.common_tags
+  function_name          = "order-service-pepin"
+  existing_function_name = "order-service-pepin"
+  alias_name             = "dev"
+  tags                   = local.common_tags
 }
 
 module "lambda_cart" {
   source = "../../modules/lambda"
 
-  function_name = "${local.name_prefix}-cart"
-  role_arn      = module.iam_cart.role_arn
-  handler       = "index"
-  runtime       = "nodejs20.x"
-  memory_size   = 256
-  timeout       = 30
-  s3_bucket     = local.deployment_bucket
-  s3_key        = "cart/latest.zip"
-  publish       = true
-  alias_name    = "dev"
-  environment_variables = {
-    NODE_ENV   = "dev"
-    CART_TABLE = module.dynamodb_cart.name
-  }
-  tags = local.common_tags
+  function_name          = "cart-service-pepin"
+  existing_function_name = "cart-service-pepin"
+  alias_name             = "dev"
+  tags                   = local.common_tags
 }
 
 module "lambda_payment" {
   source = "../../modules/lambda"
 
-  function_name = "${local.name_prefix}-payment"
-  role_arn      = module.iam_payment.role_arn
-  handler       = "index"
-  runtime       = "nodejs20.x"
-  memory_size   = 256
-  timeout       = 30
-  s3_bucket     = local.deployment_bucket
-  s3_key        = "payment/latest.zip"
-  publish       = true
-  alias_name    = "dev"
-  environment_variables = {
-    NODE_ENV = "dev"
-  }
-  tags = local.common_tags
+  function_name          = "payment-service-pepin"
+  existing_function_name = "payment-service-pepin"
+  alias_name             = "dev"
+  tags                   = local.common_tags
+}
+
+module "lambda_inventory" {
+  source = "../../modules/lambda"
+
+  function_name          = "inventory-service-pepin"
+  existing_function_name = "inventory-service-pepin"
+  alias_name             = "dev"
+  tags                   = local.common_tags
+}
+
+module "lambda_customer" {
+  source = "../../modules/lambda"
+
+  function_name          = "customer-service-pepin"
+  existing_function_name = "customer-service-pepin"
+  alias_name             = "dev"
+  tags                   = local.common_tags
+}
+
+module "lambda_analytics" {
+  source = "../../modules/lambda"
+
+  function_name          = "analytics-service-pepin"
+  existing_function_name = "analytics-service-pepin"
+  alias_name             = "dev"
+  tags                   = local.common_tags
 }
 
 module "lambda_notification" {
@@ -308,6 +298,9 @@ module "api_gateway" {
     order        = { path_part = "orders", lambda_invoke_arn = module.lambda_order.alias_invoke_arn, lambda_function_name = module.lambda_order.function_name }
     cart         = { path_part = "cart", lambda_invoke_arn = module.lambda_cart.alias_invoke_arn, lambda_function_name = module.lambda_cart.function_name }
     payment      = { path_part = "payments", lambda_invoke_arn = module.lambda_payment.alias_invoke_arn, lambda_function_name = module.lambda_payment.function_name }
+    inventory    = { path_part = "inventory", lambda_invoke_arn = module.lambda_inventory.alias_invoke_arn, lambda_function_name = module.lambda_inventory.function_name }
+    customer     = { path_part = "customers", lambda_invoke_arn = module.lambda_customer.alias_invoke_arn, lambda_function_name = module.lambda_customer.function_name }
+    analytics    = { path_part = "analytics", lambda_invoke_arn = module.lambda_analytics.alias_invoke_arn, lambda_function_name = module.lambda_analytics.function_name }
     notification = { path_part = "notifications", lambda_invoke_arn = module.lambda_notification.alias_invoke_arn, lambda_function_name = module.lambda_notification.function_name }
     frontend     = { path_part = "frontend", lambda_invoke_arn = module.lambda_frontend.alias_invoke_arn, lambda_function_name = module.lambda_frontend.function_name }
   }
@@ -318,6 +311,9 @@ module "api_gateway" {
     module.lambda_order.qualified_arn,
     module.lambda_cart.qualified_arn,
     module.lambda_payment.qualified_arn,
+    module.lambda_inventory.qualified_arn,
+    module.lambda_customer.qualified_arn,
+    module.lambda_analytics.qualified_arn,
     module.lambda_notification.qualified_arn,
     module.lambda_frontend.qualified_arn,
   ]
@@ -334,6 +330,9 @@ module "cloudwatch" {
     module.lambda_order.function_name,
     module.lambda_cart.function_name,
     module.lambda_payment.function_name,
+    module.lambda_inventory.function_name,
+    module.lambda_customer.function_name,
+    module.lambda_analytics.function_name,
     module.lambda_notification.function_name,
     module.lambda_frontend.function_name,
   ]
