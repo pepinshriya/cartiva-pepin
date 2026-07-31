@@ -132,10 +132,19 @@ jobs:
           echo "Created package: $(ls -lh "${SERVICE}.zip" | awk '{print $5}')"
           unzip -l "${SERVICE}.zip" | head -20
 
+      - name: Inspect packaged artifacts
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Directory contents:"
+          ls -R
+          echo "ZIP files:"
+          find . -name "*.zip"
+
       - name: Upload Lambda artifact
         uses: actions/upload-artifact@v4
         with:
           name: lambda-${{ inputs.service }}
-          path: ${{ inputs.service }}.zip
+          path: ${{ inputs.service }}/${{ inputs.service }}.zip
           if-no-files-found: error
           retention-days: 7
