@@ -1,0 +1,418 @@
+name: Deploy Dev
+
+on:
+  push:
+    branches:
+      - develop
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - 'README*'
+      - '.gitignore'
+      - '.editorconfig'
+      - '.husky/**'
+      - 'infrastructure/**'
+  workflow_dispatch:
+    inputs:
+      deploy_all:
+        description: 'Deploy all Lambda functions, ignoring change detection'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-dev-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  LAMBDA_PREFIX: ${{ vars.LAMBDA_PREFIX || 'ecommerce-dev' }}
+  ALIAS_NAME: ${{ vars.DEV_ALIAS_NAME || 'dev' }}
+
+jobs:
+  detect:
+    name: Detect changed services
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.detect.outputs.services }}
+      changed: ${{ steps.detect.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed service directories
+        id: detect
+        run: |
+          ALL_SERVICES='["analytics-service","cart-service","customer-service","inventory-service","order-service","payment-service","product-service","frontend"]'
+          FORCE="false"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            FORCE="${{ inputs.deploy_all || 'false' }}"
+            BASE="origin/develop"
+            echo "Event: manual workflow_dispatch (deploy_all=$FORCE)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            BASE="${{ github.event.before }}"
+            if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+              FORCE="true"
+              echo "Initial push or no previous commit detected - treating all services as changed." >> "$GITHUB_STEP_SUMMARY"
+            fi
+            echo "Event: push to develop (base=$BASE)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [ "$FORCE" = "true" ]; then
+            echo "::warning::Force deploy enabled - all services will be deployed."
+            SERVICES="$ALL_SERVICES"
+          else
+            CHANGED_DIRS=$(git diff --name-only "$BASE" HEAD | awk -F/ 'NF>1{print $1}' | sort -u)
+            echo "Changed top-level directories:" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "$CHANGED_DIRS" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+            SERVICES="[]"
+            for svc in analytics-service cart-service customer-service inventory-service order-service payment-service product-service frontend; do
+              if echo "$CHANGED_DIRS" | grep -qx "$svc"; then
+                SERVICES=$(echo "$SERVICES" | jq -c --arg s "$svc" '. + [$s]')
+              fi
+            done
+          fi
+
+          if [ "$SERVICES" = "[]" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No service code changed. Skipping deployment."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "services=$SERVICES" >> "$GITHUB_OUTPUT"
+
+          echo "Services to deploy: $SERVICES"
+          echo "Deploying services: $SERVICES" >> "$GITHUB_STEP_SUMMARY"
+
+  lint-format:
+    name: Lint + format check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js (restore npm cache)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run format check
+        run: npm run format:check
+
+  test-package:
+    name: Test + package ${{ matrix.service }}
+    needs:
+      - detect
+      - lint-format
+    if: needs.detect.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect.outputs.services) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js (restore npm cache)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ${{ matrix.service }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.service }}
+        run: npm ci
+
+      - name: Run all tests
+        working-directory: ${{ matrix.service }}
+        run: npm test --if-present
+
+      - name: Build frontend
+        if: matrix.service == 'frontend'
+        working-directory: ${{ matrix.service }}
+        run: npm run build
+
+      - name: Package Lambda into ZIP artifact
+        run: |
+          SERVICE="${{ matrix.service }}"
+          PKG="package/${SERVICE}"
+
+          echo "::group::Packaging ${SERVICE}"
+          mkdir -p "${PKG}"
+
+          rsync -a \
+            --exclude '*.zip' \
+            --exclude 'node_modules' \
+            --exclude '.env*' \
+            --exclude '.git*' \
+            --exclude 'coverage' \
+            "${SERVICE}/" "${PKG}/"
+
+          cp -r "${SERVICE}/node_modules" "${PKG}/node_modules"
+
+          if [ "${SERVICE}" = "frontend" ]; then
+            cat > "${PKG}/index.js" <<'HANDLER'
+            const fs = require('fs');
+            const path = require('path');
+
+            const distDir = path.join(__dirname, 'dist');
+
+            const CONTENT_TYPES = {
+              '.html': 'text/html; charset=utf-8',
+              '.js': 'application/javascript; charset=utf-8',
+              '.css': 'text/css; charset=utf-8',
+              '.json': 'application/json; charset=utf-8',
+              '.png': 'image/png',
+              '.jpg': 'image/jpeg',
+              '.jpeg': 'image/jpeg',
+              '.gif': 'image/gif',
+              '.svg': 'image/svg+xml',
+              '.ico': 'image/x-icon',
+              '.woff': 'font/woff',
+              '.woff2': 'font/woff2',
+            };
+
+            function respond(statusCode, headers, body) {
+              return { statusCode, headers, body: Buffer.from(body).toString('base64'), isBase64Encoded: true };
+            }
+
+            module.exports.handler = async (event) => {
+              try {
+                let filePath = event.path || '/';
+                if (filePath === '/') filePath = '/index.html';
+
+                const fullPath = path.join(distDir, filePath);
+                if (!fullPath.startsWith(distDir)) {
+                  return respond(403, { 'Content-Type': 'text/plain' }, 'Forbidden');
+                }
+
+                const body = fs.readFileSync(fullPath);
+                const ext = path.extname(fullPath).toLowerCase();
+                return respond(200, { 'Content-Type': CONTENT_TYPES[ext] || 'application/octet-stream' }, body);
+              } catch (error) {
+                if (error.code === 'ENOENT') {
+                  try {
+                    const body = fs.readFileSync(path.join(distDir, 'index.html'));
+                    return respond(200, { 'Content-Type': 'text/html; charset=utf-8' }, body);
+                  } catch (notFound) {
+                    return respond(404, { 'Content-Type': 'text/plain' }, 'Not Found');
+                  }
+                }
+                console.error('Frontend handler error:', error);
+                return respond(500, { 'Content-Type': 'text/plain' }, 'Internal Server Error');
+              }
+            };
+            HANDLER
+          else
+            cat > "${PKG}/index.js" <<'HANDLER'
+            module.exports.handler = require('./src/lambda').handler;
+            HANDLER
+          fi
+
+          (cd "${PKG}" && zip -qr "../${SERVICE}.zip" .)
+          echo "::endgroup::"
+          echo "Created package: $(ls -lh "${SERVICE}.zip" | awk '{print $5}')"
+          unzip -l "${SERVICE}.zip" | head -20
+
+      - name: Upload Lambda artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-${{ matrix.service }}
+          path: ${{ matrix.service }}.zip
+          if-no-files-found: error
+
+  deploy:
+    name: Deploy ${{ matrix.service }}
+    needs:
+      - detect
+      - lint-format
+      - test-package
+    if: needs.detect.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect.outputs.services) }}
+    steps:
+      - name: Check required AWS secrets
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          missing=""
+          for var in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_REGION; do
+            if [ -z "${!var}" ]; then
+              missing="$missing $var"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing GitHub Secrets:${missing}. Add them under Settings -> Secrets and variables -> Actions before running this workflow."
+            exit 1
+          fi
+          echo "All required AWS secrets are configured."
+
+      - name: Download Lambda artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-${{ matrix.service }}
+          path: artifact
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify AWS credentials
+        run: |
+          IDENTITY=$(aws sts get-caller-identity)
+          echo "AWS identity:"
+          echo "$IDENTITY"
+          echo "Authenticated as: $(echo "$IDENTITY" | jq -r .Arn) in account $(echo "$IDENTITY" | jq -r .Account)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Resolve Lambda function name
+        env:
+          SERVICE: ${{ matrix.service }}
+        run: |
+          FUNCTION_NAME="${LAMBDA_PREFIX}-${SERVICE%-service}"
+          echo "Resolved Lambda function: $FUNCTION_NAME"
+          echo "FUNCTION_NAME=${FUNCTION_NAME}" >> "$GITHUB_ENV"
+
+      - name: Deploy Lambda code
+        id: deploy-code
+        run: |
+          ZIP="artifact/${{ matrix.service }}.zip"
+          echo "::group::Deploying ${FUNCTION_NAME}"
+          echo "Package: ${ZIP}"
+          echo "Region: ${AWS_REGION}"
+          if ! aws lambda update-function-code \
+            --function-name "$FUNCTION_NAME" \
+            --zip-file "fileb://${ZIP}" \
+            --region "$AWS_REGION" \
+            --query '{FunctionName:FunctionName, LastModified:LastModified, CodeSha256:CodeSha256}' \
+            --output json; then
+            if aws lambda get-function --function-name "$FUNCTION_NAME" --region "$AWS_REGION" >/dev/null 2>&1; then
+              echo "::error::Failed to update Lambda function '${FUNCTION_NAME}'. Check the CloudWatch logs and AWS permissions."
+              exit 1
+            else
+              echo "::warning::Lambda function '${FUNCTION_NAME}' does not exist in this environment."
+              echo "::warning::Verify the LAMBDA_PREFIX variable ('${LAMBDA_PREFIX}') and confirm Terraform provisions this function. Skipping."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "::endgroup::"
+
+      - name: Publish new Lambda version
+        if: steps.deploy-code.outputs.skip != 'true'
+        id: publish-version
+        run: |
+          echo "::group::Publishing new version of ${FUNCTION_NAME}"
+          VERSION=$(aws lambda publish-version \
+            --function-name "$FUNCTION_NAME" \
+            --description "Deployed from ${GITHUB_SHA} (run ${GITHUB_RUN_NUMBER})" \
+            --region "$AWS_REGION" \
+            --query Version \
+            --output text)
+          echo "Published version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: Update Lambda alias
+        if: steps.deploy-code.outputs.skip != 'true'
+        run: |
+          echo "::group::Updating alias '${ALIAS_NAME}' for ${FUNCTION_NAME}"
+          VERSION="${{ steps.publish-version.outputs.version }}"
+          if aws lambda get-alias \
+            --function-name "$FUNCTION_NAME" \
+            --name "$ALIAS_NAME" \
+            --region "$AWS_REGION" >/dev/null 2>&1; then
+            aws lambda update-alias \
+              --function-name "$FUNCTION_NAME" \
+              --name "$ALIAS_NAME" \
+              --function-version "$VERSION" \
+              --description "Deployed from ${GITHUB_SHA} (run ${GITHUB_RUN_NUMBER})" \
+              --region "$AWS_REGION"
+            echo "Alias '${ALIAS_NAME}' updated to version ${VERSION}."
+          else
+            aws lambda create-alias \
+              --function-name "$FUNCTION_NAME" \
+              --name "$ALIAS_NAME" \
+              --function-version "$VERSION" \
+              --description "Deployed from ${GITHUB_SHA} (run ${GITHUB_RUN_NUMBER})" \
+              --region "$AWS_REGION"
+            echo "Alias '${ALIAS_NAME}' created pointing to version ${VERSION}."
+          fi
+          echo "::endgroup::"
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          if [ "${{ steps.deploy-code.outputs.skip }}" = "true" ]; then
+            echo "| ${FUNCTION_NAME} | skipped (function not found) |" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "| ${FUNCTION_NAME} | ${ALIAS_NAME} -> ${{ steps.publish-version.outputs.version }} | ${GITHUB_SHA} | ${GITHUB_RUN_NUMBER} |" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  smoke-test:
+    name: Smoke test dev endpoints
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check required smoke test secret
+        env:
+          DEV_API_BASE_URL: ${{ secrets.DEV_API_BASE_URL }}
+        run: |
+          if [ -z "$DEV_API_BASE_URL" ]; then
+            echo "::error::Missing GitHub Secret: DEV_API_BASE_URL. Add the development API Gateway invoke URL to enable smoke tests."
+            exit 1
+          fi
+          echo "Smoke testing against: $DEV_API_BASE_URL"
+
+      - name: Run smoke tests
+        env:
+          DEV_API_BASE_URL: ${{ secrets.DEV_API_BASE_URL }}
+          DEV_SMOKE_PATHS: ${{ vars.DEV_SMOKE_PATHS || '/,/products,/orders,/cart' }}
+        run: |
+          BASE_URL="${DEV_API_BASE_URL%/}"
+          FAILURES=""
+
+          echo "::group::Smoke tests"
+          for p in $(echo "$DEV_SMOKE_PATHS" | tr ',' ' '); do
+            CODE=$(curl -sS -o /dev/null -w "%{http_code}" \
+              --max-time 30 --retry 2 --retry-all-errors \
+              "${BASE_URL}${p}" || echo "000")
+            if [ "$CODE" = "000" ] || [ "$CODE" -ge 500 ]; then
+              echo "::error::Smoke test FAILED: GET ${BASE_URL}${p} -> HTTP ${CODE}"
+              FAILURES="${FAILURES} ${p}(${CODE})"
+            else
+              echo "Smoke test OK: GET ${BASE_URL}${p} -> HTTP ${CODE}"
+            fi
+          done
+          echo "::endgroup::"
+
+          if [ -n "$FAILURES" ]; then
+            echo "::error::Smoke tests failed for endpoints:${FAILURES}"
+            exit 1
+          fi
+          echo "::notice::All smoke tests passed against the development environment."

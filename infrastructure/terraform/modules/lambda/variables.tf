@@ -37,6 +37,12 @@ variable "publish" {
   default     = false
 }
 
+variable "alias_name" {
+  description = "Name of the Lambda alias to create (null disables alias creation)"
+  type        = string
+  default     = null
+}
+
 variable "environment_variables" {
   description = "Environment variables for the function"
   type        = map(string)

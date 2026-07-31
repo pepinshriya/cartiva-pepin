@@ -1,0 +1,199 @@
+name: Reusable Backend Deploy
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        description: 'Service directory name (e.g. product-service)'
+        required: true
+        type: string
+      environment:
+        description: 'Deployment environment (dev only for now)'
+        required: false
+        type: string
+        default: 'dev'
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  LAMBDA_PREFIX: ${{ vars.LAMBDA_PREFIX || 'ecommerce-dev' }}
+  ALIAS_NAME: ${{ vars.DEV_ALIAS_NAME || 'dev' }}
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.service }} (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check required AWS secrets
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          missing=""
+          for var in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_REGION; do
+            if [ -z "${!var}" ]; then
+              missing="$missing $var"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing GitHub Secrets:${missing}. Add them under Settings -> Secrets and variables -> Actions before running this workflow."
+            exit 1
+          fi
+          echo "All required AWS secrets are configured."
+
+      - name: Download Lambda artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lambda-${{ inputs.service }}
+          path: artifact
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify AWS credentials
+        run: |
+          IDENTITY=$(aws sts get-caller-identity)
+          echo "AWS identity:"
+          echo "$IDENTITY"
+          echo "Authenticated as: $(echo "$IDENTITY" | jq -r .Arn) in account $(echo "$IDENTITY" | jq -r .Account)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Resolve Lambda function name
+        env:
+          SERVICE: ${{ inputs.service }}
+        run: |
+          FUNCTION_NAME="${LAMBDA_PREFIX}-${SERVICE%-service}"
+          echo "Resolved Lambda function: $FUNCTION_NAME"
+          echo "FUNCTION_NAME=${FUNCTION_NAME}" >> "$GITHUB_ENV"
+
+      - name: Deploy Lambda code
+        id: deploy-code
+        run: |
+          ZIP="artifact/${{ inputs.service }}.zip"
+          echo "::group::Deploying ${FUNCTION_NAME}"
+          echo "Package: ${ZIP}"
+          echo "Region: ${AWS_REGION}"
+          if ! aws lambda update-function-code \
+            --function-name "$FUNCTION_NAME" \
+            --zip-file "fileb://${ZIP}" \
+            --region "$AWS_REGION" \
+            --query '{FunctionName:FunctionName, LastModified:LastModified, CodeSha256:CodeSha256}' \
+            --output json; then
+            if aws lambda get-function --function-name "$FUNCTION_NAME" --region "$AWS_REGION" >/dev/null 2>&1; then
+              echo "::error::Failed to update Lambda function '${FUNCTION_NAME}'. Check the CloudWatch logs and AWS permissions."
+              exit 1
+            else
+              echo "::warning::Lambda function '${FUNCTION_NAME}' does not exist in this environment."
+              echo "::warning::Verify the LAMBDA_PREFIX variable ('${LAMBDA_PREFIX}') and confirm Terraform provisions this function. Skipping."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "::endgroup::"
+
+      - name: Publish new Lambda version
+        if: steps.deploy-code.outputs.skip != 'true'
+        id: publish-version
+        run: |
+          echo "::group::Publishing new version of ${FUNCTION_NAME}"
+          VERSION=$(aws lambda publish-version \
+            --function-name "$FUNCTION_NAME" \
+            --description "Deployed from ${GITHUB_SHA} (run ${GITHUB_RUN_NUMBER})" \
+            --region "$AWS_REGION" \
+            --query Version \
+            --output text)
+          echo "Published version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: Update Lambda alias
+        if: steps.deploy-code.outputs.skip != 'true'
+        run: |
+          echo "::group::Updating alias '${ALIAS_NAME}' for ${FUNCTION_NAME}"
+          VERSION="${{ steps.publish-version.outputs.version }}"
+          if aws lambda get-alias \
+            --function-name "$FUNCTION_NAME" \
+            --name "$ALIAS_NAME" \
+            --region "$AWS_REGION" >/dev/null 2>&1; then
+            aws lambda update-alias \
+              --function-name "$FUNCTION_NAME" \
+              --name "$ALIAS_NAME" \
+              --function-version "$VERSION" \
+              --description "Deployed from ${GITHUB_SHA} (run ${GITHUB_RUN_NUMBER})" \
+              --region "$AWS_REGION"
+            echo "Alias '${ALIAS_NAME}' updated to version ${VERSION}."
+          else
+            aws lambda create-alias \
+              --function-name "$FUNCTION_NAME" \
+              --name "$ALIAS_NAME" \
+              --function-version "$VERSION" \
+              --description "Deployed from ${GITHUB_SHA} (run ${GITHUB_RUN_NUMBER})" \
+              --region "$AWS_REGION"
+            echo "Alias '${ALIAS_NAME}' created pointing to version ${VERSION}."
+          fi
+          echo "::endgroup::"
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          if [ "${{ steps.deploy-code.outputs.skip }}" = "true" ]; then
+            echo "| ${FUNCTION_NAME} | skipped (function not found) |" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "| ${FUNCTION_NAME} | ${ALIAS_NAME} -> ${{ steps.publish-version.outputs.version }} | ${GITHUB_SHA} | ${GITHUB_RUN_NUMBER} |" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  smoke-test:
+    name: Smoke test dev endpoints
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check required smoke test secret
+        env:
+          DEV_API_BASE_URL: ${{ secrets.DEV_API_BASE_URL }}
+        run: |
+          if [ -z "$DEV_API_BASE_URL" ]; then
+            echo "::error::Missing GitHub Secret: DEV_API_BASE_URL. Add the development API Gateway invoke URL to enable smoke tests."
+            exit 1
+          fi
+          echo "Smoke testing against: $DEV_API_BASE_URL"
+
+      - name: Run smoke tests
+        env:
+          DEV_API_BASE_URL: ${{ secrets.DEV_API_BASE_URL }}
+          DEV_SMOKE_PATHS: ${{ vars.DEV_SMOKE_PATHS || '/,/products,/orders,/cart' }}
+        run: |
+          BASE_URL="${DEV_API_BASE_URL%/}"
+          FAILURES=""
+
+          echo "::group::Smoke tests"
+          for p in $(echo "$DEV_SMOKE_PATHS" | tr ',' ' '); do
+            CODE=$(curl -sS -o /dev/null -w "%{http_code}" \
+              --max-time 30 --retry 2 --retry-all-errors \
+              "${BASE_URL}${p}" || echo "000")
+            if [ "$CODE" = "000" ] || [ "$CODE" -ge 500 ]; then
+              echo "::error::Smoke test FAILED: GET ${BASE_URL}${p} -> HTTP ${CODE}"
+              FAILURES="${FAILURES} ${p}(${CODE})"
+            else
+              echo "Smoke test OK: GET ${BASE_URL}${p} -> HTTP ${CODE}"
+            fi
+          done
+          echo "::endgroup::"
+
+          if [ -n "$FAILURES" ]; then
+            echo "::error::Smoke tests failed for endpoints:${FAILURES}"
+            exit 1
+          fi
+          echo "::notice::All smoke tests passed against the development environment."

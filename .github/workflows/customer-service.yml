@@ -1,0 +1,19 @@
+name: CI - Customer Service
+
+on:
+  push:
+    branches: [develop, main]
+    paths:
+      - 'customer-service/**'
+      - '.github/workflows/reusable-backend-ci.yml'
+  pull_request:
+    paths:
+      - 'customer-service/**'
+  workflow_dispatch:
+
+jobs:
+  backend-ci:
+    name: Backend CI
+    uses: ./.github/workflows/reusable-backend-ci.yml
+    with:
+      service: customer-service

@@ -47,3 +47,16 @@ resource "aws_lambda_function" "this" {
 
   tags = var.tags
 }
+
+resource "aws_lambda_alias" "this" {
+  count = var.alias_name != null ? 1 : 0
+
+  name             = var.alias_name
+  description      = "Deployment alias for ${var.function_name}"
+  function_name    = aws_lambda_function.this.arn
+  function_version = aws_lambda_function.this.version
+
+  lifecycle {
+    ignore_changes = [function_version]
+  }
+}

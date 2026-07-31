@@ -1,0 +1,21 @@
+name: Deploy - Inventory Service
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: false
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+
+jobs:
+  backend-deploy:
+    name: Deploy
+    uses: ./.github/workflows/reusable-backend-deploy.yml
+    with:
+      service: inventory-service
+      environment: ${{ inputs.environment || 'dev' }}
+    secrets: inherit

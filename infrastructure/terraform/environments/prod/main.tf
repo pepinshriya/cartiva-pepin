@@ -156,6 +156,7 @@ module "lambda_auth" {
   s3_bucket     = local.deployment_bucket
   s3_key        = "auth/latest.zip"
   publish       = true
+  alias_name    = "prod"
   environment_variables = {
     NODE_ENV        = "production"
     COGNITO_POOL_ID = aws_cognito_user_pool.this.id
@@ -175,6 +176,7 @@ module "lambda_product" {
   s3_bucket     = local.deployment_bucket
   s3_key        = "product/latest.zip"
   publish       = true
+  alias_name    = "prod"
   environment_variables = {
     NODE_ENV       = "production"
     PRODUCTS_TABLE = module.dynamodb_products.name
@@ -194,6 +196,7 @@ module "lambda_order" {
   s3_bucket     = local.deployment_bucket
   s3_key        = "order/latest.zip"
   publish       = true
+  alias_name    = "prod"
   environment_variables = {
     NODE_ENV     = "production"
     ORDERS_TABLE = module.dynamodb_orders.name
@@ -213,6 +216,7 @@ module "lambda_cart" {
   s3_bucket     = local.deployment_bucket
   s3_key        = "cart/latest.zip"
   publish       = true
+  alias_name    = "prod"
   environment_variables = {
     NODE_ENV   = "production"
     CART_TABLE = module.dynamodb_cart.name
@@ -232,6 +236,7 @@ module "lambda_payment" {
   s3_bucket     = local.deployment_bucket
   s3_key        = "payment/latest.zip"
   publish       = true
+  alias_name    = "prod"
   environment_variables = {
     NODE_ENV = "production"
   }
@@ -250,6 +255,7 @@ module "lambda_notification" {
   s3_bucket     = local.deployment_bucket
   s3_key        = "notification/latest.zip"
   publish       = true
+  alias_name    = "prod"
   environment_variables = {
     NODE_ENV = "production"
   }
@@ -268,6 +274,7 @@ module "lambda_frontend" {
   s3_bucket     = local.deployment_bucket
   s3_key        = "frontend/latest.zip"
   publish       = true
+  alias_name    = "prod"
   environment_variables = {
     NODE_ENV = "production"
   }
@@ -331,13 +338,13 @@ module "api_gateway" {
   stage_name  = "v1"
 
   routes = {
-    auth         = { path_part = "auth", lambda_invoke_arn = module.lambda_auth.invoke_arn, lambda_function_name = module.lambda_auth.function_name }
-    product      = { path_part = "products", lambda_invoke_arn = module.lambda_product.invoke_arn, lambda_function_name = module.lambda_product.function_name }
-    order        = { path_part = "orders", lambda_invoke_arn = module.lambda_order.invoke_arn, lambda_function_name = module.lambda_order.function_name }
-    cart         = { path_part = "cart", lambda_invoke_arn = module.lambda_cart.invoke_arn, lambda_function_name = module.lambda_cart.function_name }
-    payment      = { path_part = "payments", lambda_invoke_arn = module.lambda_payment.invoke_arn, lambda_function_name = module.lambda_payment.function_name }
-    notification = { path_part = "notifications", lambda_invoke_arn = module.lambda_notification.invoke_arn, lambda_function_name = module.lambda_notification.function_name }
-    frontend     = { path_part = "frontend", lambda_invoke_arn = module.lambda_frontend.invoke_arn, lambda_function_name = module.lambda_frontend.function_name }
+    auth         = { path_part = "auth", lambda_invoke_arn = module.lambda_auth.alias_invoke_arn, lambda_function_name = module.lambda_auth.function_name }
+    product      = { path_part = "products", lambda_invoke_arn = module.lambda_product.alias_invoke_arn, lambda_function_name = module.lambda_product.function_name }
+    order        = { path_part = "orders", lambda_invoke_arn = module.lambda_order.alias_invoke_arn, lambda_function_name = module.lambda_order.function_name }
+    cart         = { path_part = "cart", lambda_invoke_arn = module.lambda_cart.alias_invoke_arn, lambda_function_name = module.lambda_cart.function_name }
+    payment      = { path_part = "payments", lambda_invoke_arn = module.lambda_payment.alias_invoke_arn, lambda_function_name = module.lambda_payment.function_name }
+    notification = { path_part = "notifications", lambda_invoke_arn = module.lambda_notification.alias_invoke_arn, lambda_function_name = module.lambda_notification.function_name }
+    frontend     = { path_part = "frontend", lambda_invoke_arn = module.lambda_frontend.alias_invoke_arn, lambda_function_name = module.lambda_frontend.function_name }
   }
 
   lambda_dependency_arns = [
