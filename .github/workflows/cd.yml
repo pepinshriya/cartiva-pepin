@@ -23,21 +23,31 @@ permissions:
   actions: read
 
 jobs:
+  determine-services:
+    name: Determine Services to Deploy
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.set-matrix.outputs.services }}
+    steps:
+      - name: Set matrix services
+        id: set-matrix
+        run: |
+          SELECTED="${{ github.event.inputs.service }}"
+          if [ "$SELECTED" = "all" ] || [ -z "$SELECTED" ]; then
+            SERVICES='["analytics-service","cart-service","customer-service","inventory-service","order-service","payment-service","product-service"]'
+          else
+            SERVICES="[\"${SELECTED}\"]"
+          fi
+          echo "services=${SERVICES}" >> "$GITHUB_OUTPUT"
+
   deploy:
     name: Deploy ${{ matrix.service }}
+    needs: determine-services
     runs-on: ubuntu-latest
-    if: github.event.inputs.service == 'all' || github.event.inputs.service == matrix.service
     strategy:
       fail-fast: false
       matrix:
-        service:
-          - analytics-service
-          - cart-service
-          - customer-service
-          - inventory-service
-          - order-service
-          - payment-service
-          - product-service
+        service: ${{ fromJson(needs.determine-services.outputs.services) }}
 
     steps:
       - name: Checkout repository
