@@ -69,7 +69,7 @@ jobs:
           cp -r node_modules "${PKG}/node_modules"
 
           if [ "${SERVICE}" = "frontend" ]; then
-            node -e '
+            PKG="${PKG}" node -e '
               const fs = require("fs");
               const code = `const fs = require("fs");
 const path = require("path");
@@ -122,8 +122,8 @@ module.exports.handler = async (event) => {
   }
 };
 `;
-              fs.writeFileSync(process.argv[1] + "/index.js", code);
-            ' "${PKG}"
+              fs.writeFileSync(process.env.PKG + "/index.js", code);
+            '
           else
             echo "module.exports.handler = require('./src/lambda').handler;" > "${PKG}/index.js"
           fi
