@@ -112,3 +112,54 @@ jobs:
           path: cart-service/cart-service.zip
           if-no-files-found: error
           retention-days: 7
+
+  order-service:
+    name: Order Service CI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: order-service
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: order-service/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint (if present)
+        run: npm run lint --if-present
+
+      - name: Run tests
+        run: npm test
+
+      - name: Package Lambda code into ZIP
+        run: |
+          mkdir -p package
+          rsync -a --exclude 'node_modules' --exclude 'package' --exclude '*.zip' --exclude '.git*' --exclude 'coverage' ./ package/
+          cp ../shared/templates/lambda-backend-index.js package/index.js
+          (cd package && npm ci --omit=dev)
+          (cd package && zip -qrX "../order-service.zip" .)
+
+      - name: Verify ZIP artifact
+        run: |
+          echo "Verifying order-service.zip contents:"
+          unzip -l order-service.zip | head -20
+          if ! unzip -l order-service.zip | grep -q "index.js"; then
+            echo "::error::index.js is missing from order-service.zip"
+            exit 1
+          fi
+
+      - name: Upload Lambda artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-order-service
+          path: order-service/order-service.zip
+          if-no-files-found: error
+          retention-days: 7
