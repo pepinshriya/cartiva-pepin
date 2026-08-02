@@ -21,6 +21,7 @@ on:
 permissions:
   contents: read
   actions: read
+  id-token: write
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -42,18 +43,16 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
         run: |
-          missing=""
-          for var in AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN AWS_REGION; do
-            if [ -z "${!var}" ]; then
-              missing="$missing $var"
-            fi
-          done
-          if [ -n "$missing" ]; then
-            echo "::error::Missing GitHub Secrets:${missing}. Add them under Settings -> Secrets and variables -> Actions before running this workflow."
+          if [ -n "$AWS_ROLE_TO_ASSUME" ]; then
+            echo "AWS OIDC authentication configured via AWS_ROLE_TO_ASSUME."
+          elif [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "AWS static credential authentication configured."
+          else
+            echo "::error::Missing AWS credentials. Configure AWS_ROLE_TO_ASSUME (OIDC) or AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY."
             exit 1
           fi
-          echo "All required AWS secrets are configured."
 
       - name: Download Lambda artifact
         uses: actions/download-artifact@v4
@@ -66,10 +65,12 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
+          audience: sts.amazonaws.com
 
       - name: Verify AWS credentials
         run: |
@@ -90,6 +91,14 @@ jobs:
         id: deploy-code
         run: |
           ZIP="artifact/${{ inputs.service }}.zip"
+          if [ ! -f "${ZIP}" ]; then
+            if [ -f "artifact/${{ inputs.service }}/${{ inputs.service }}.zip" ]; then
+              ZIP="artifact/${{ inputs.service }}/${{ inputs.service }}.zip"
+            else
+              echo "::error::Artifact zip file not found at ${ZIP} or artifact/${{ inputs.service }}/${{ inputs.service }}.zip"
+              exit 1
+            fi
+          fi
           echo "::group::Deploying ${FUNCTION_NAME}"
           echo "Package: ${ZIP}"
           echo "Region: ${AWS_REGION}"

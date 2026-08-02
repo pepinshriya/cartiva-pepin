@@ -66,81 +66,49 @@ jobs:
             --exclude 'package' \
             "./" "${PKG}/"
 
-          cp -r node_modules "${PKG}/node_modules"
-
           if [ "${SERVICE}" = "frontend" ]; then
-            PKG="${PKG}" node -e '
-              const fs = require("fs");
-              const code = `const fs = require("fs");
-const path = require("path");
-
-const distDir = path.join(__dirname, "dist");
-
-const CONTENT_TYPES = {
-  ".html": "text/html; charset=utf-8",
-  ".js": "application/javascript; charset=utf-8",
-  ".css": "text/css; charset=utf-8",
-  ".json": "application/json; charset=utf-8",
-  ".png": "image/png",
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".gif": "image/gif",
-  ".svg": "image/svg+xml",
-  ".ico": "image/x-icon",
-  ".woff": "font/woff",
-  ".woff2": "font/woff2",
-};
-
-function respond(statusCode, headers, body) {
-  return { statusCode, headers, body: Buffer.from(body).toString("base64"), isBase64Encoded: true };
-}
-
-module.exports.handler = async (event) => {
-  try {
-    let filePath = event.path || "/";
-    if (filePath === "/") filePath = "/index.html";
-
-    const fullPath = path.join(distDir, filePath);
-    if (!fullPath.startsWith(distDir)) {
-      return respond(403, { "Content-Type": "text/plain" }, "Forbidden");
-    }
-
-    const body = fs.readFileSync(fullPath);
-    const ext = path.extname(fullPath).toLowerCase();
-    return respond(200, { "Content-Type": CONTENT_TYPES[ext] || "application/octet-stream" }, body);
-  } catch (error) {
-    if (error.code === "ENOENT") {
-      try {
-        const body = fs.readFileSync(path.join(distDir, "index.html"));
-        return respond(200, { "Content-Type": "text/html; charset=utf-8" }, body);
-      } catch (notFound) {
-        return respond(404, { "Content-Type": "text/plain" }, "Not Found");
-      }
-    }
-    console.error("Frontend handler error:", error);
-    return respond(500, { "Content-Type": "text/plain" }, "Internal Server Error");
-  }
-};
-`;
-              fs.writeFileSync(process.env.PKG + "/index.js", code);
-            '
+            cp "../shared/templates/lambda-frontend-index.js" "${PKG}/index.js"
           else
-            echo "module.exports.handler = require('./src/lambda').handler;" > "${PKG}/index.js"
+            cp "../shared/templates/lambda-backend-index.js" "${PKG}/index.js"
+            (cd "${PKG}" && npm ci --omit=dev)
           fi
 
-          (cd "${PKG}" && zip -qr "../${SERVICE}.zip" .)
+          (cd "${PKG}" && zip -qrX "../${SERVICE}.zip" .)
           echo "::endgroup::"
-          echo "Created package: $(ls -lh "${SERVICE}.zip" | awk '{print $5}')"
-          unzip -l "${SERVICE}.zip" | head -20
 
-      - name: Inspect packaged artifacts
+      - name: Verify Lambda ZIP artifact
         run: |
-          echo "Current directory:"
-          pwd
-          echo "Directory contents:"
-          ls -R
-          echo "ZIP files:"
-          find . -name "*.zip"
+          SERVICE="${{ inputs.service }}"
+          ZIP_FILE="${SERVICE}.zip"
+          MAX_BYTES=47185920 # 45MB threshold
+
+          if [ ! -f "${ZIP_FILE}" ]; then
+            echo "::error::Zip file ${ZIP_FILE} does not exist."
+            exit 1
+          fi
+
+          SIZE_BYTES=$(wc -c < "${ZIP_FILE}" | tr -d ' ')
+          echo "Zip size: ${SIZE_BYTES} bytes"
+
+          if [ "${SIZE_BYTES}" -le 0 ]; then
+            echo "::error::Zip file ${ZIP_FILE} is empty (0 bytes)."
+            exit 1
+          fi
+
+          if [ "${SIZE_BYTES}" -gt "${MAX_BYTES}" ]; then
+            echo "::error::Zip file ${ZIP_FILE} (${SIZE_BYTES} bytes) exceeds maximum limit of 45MB (${MAX_BYTES} bytes)."
+            exit 1
+          fi
+
+          echo "Listing zip contents (first 20 lines):"
+          unzip -l "${ZIP_FILE}" | head -20
+
+          if ! unzip -l "${ZIP_FILE}" | grep -q "index.js"; then
+            echo "::error::Zip file ${ZIP_FILE} is missing required entrypoint index.js."
+            exit 1
+          fi
+
+          echo "::notice::Artifact ${ZIP_FILE} verified successfully (${SIZE_BYTES} bytes)."
 
       - name: Upload Lambda artifact
         uses: actions/upload-artifact@v4
