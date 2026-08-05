@@ -9,14 +9,14 @@ variable "enable_dynamodb_access" {
   default     = false
 }
 
-variable "dynamodb_table_arn" {
-  description = "DynamoDB table ARN scoping the data access policy (required if enable_dynamodb_access is true)"
-  type        = string
-  default     = null
+variable "dynamodb_table_arns" {
+  description = "List of DynamoDB table ARNs scoping the data access policy"
+  type        = list(string)
+  default     = []
 
   validation {
-    condition     = var.enable_dynamodb_access ? var.dynamodb_table_arn != null : true
-    error_message = "dynamodb_table_arn must be set when enable_dynamodb_access is true."
+    condition     = var.enable_dynamodb_access ? length(var.dynamodb_table_arns) > 0 : true
+    error_message = "dynamodb_table_arns must contain at least one ARN when enable_dynamodb_access is true."
   }
 }
 

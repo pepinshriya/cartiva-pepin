@@ -4,6 +4,10 @@ resource "aws_cloudwatch_log_group" "lambda" {
   name              = "/aws/lambda/${each.value}"
   retention_in_days = var.log_retention_days
   tags              = var.tags
+
+  lifecycle {
+    ignore_changes = [tags_all]
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
@@ -26,6 +30,10 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
 
   alarm_actions = var.alarm_sns_arns
   tags          = var.tags
+
+  lifecycle {
+    ignore_changes = [tags_all]
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
@@ -48,12 +56,16 @@ resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
 
   alarm_actions = var.alarm_sns_arns
   tags          = var.tags
+
+  lifecycle {
+    ignore_changes = [tags_all]
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "api_gateway_5xx" {
-  for_each = toset(var.api_gateway_names)
+  for_each = toset(var.api_gateway_ids)
 
-  alarm_name          = "${each.value}-5xxAlarm"
+  alarm_name          = "APIGateway-${each.value}-5xxAlarm"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 1
   metric_name         = "5XXError"
@@ -61,15 +73,19 @@ resource "aws_cloudwatch_metric_alarm" "api_gateway_5xx" {
   period              = var.alarm_period_seconds
   statistic           = "Sum"
   threshold           = var.api_5xx_alarm_threshold
-  alarm_description   = "Alarm when ${each.value} 5XX error count exceeds threshold"
+  alarm_description   = "Alarm when HTTP API ${each.value} 5XX error count exceeds threshold"
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    ApiName = each.value
+    ApiId = each.value
   }
 
   alarm_actions = var.alarm_sns_arns
   tags          = var.tags
+
+  lifecycle {
+    ignore_changes = [tags_all]
+  }
 }
 
 resource "aws_cloudwatch_dashboard" "this" {
@@ -88,10 +104,10 @@ resource "aws_cloudwatch_dashboard" "this" {
           properties = {
             metrics = flatten([
               for fn in var.lambda_function_names : [
-                ["AWS/Lambda", "Invocations", { "stat" = "Sum", "label" = "${fn} Invocations" }],
-                ["AWS/Lambda", "Errors", { "stat" = "Sum", "label" = "${fn} Errors" }],
-                ["AWS/Lambda", "Throttles", { "stat" = "Sum", "label" = "${fn} Throttles" }],
-                ["AWS/Lambda", "Duration", { "stat" = "Average", "label" = "${fn} Duration (ms)" }],
+                ["AWS/Lambda", "Invocations", "FunctionName", fn, { "stat" = "Sum", "label" = "${fn} Invocations" }],
+                ["AWS/Lambda", "Errors", "FunctionName", fn, { "stat" = "Sum", "label" = "${fn} Errors" }],
+                ["AWS/Lambda", "Throttles", "FunctionName", fn, { "stat" = "Sum", "label" = "${fn} Throttles" }],
+                ["AWS/Lambda", "Duration", "FunctionName", fn, { "stat" = "Average", "label" = "${fn} Duration (ms)" }],
                 [{ "separator" = true }],
               ]
             ])
@@ -101,6 +117,27 @@ resource "aws_cloudwatch_dashboard" "this" {
             title  = "Lambda - All Functions"
           }
         },
+        {
+          type   = "metric"
+          x      = 0
+          y      = 6
+          width  = 24
+          height = 6
+          properties = {
+            metrics = flatten([
+              for api in var.api_gateway_ids : [
+                ["AWS/ApiGateway", "Count", "ApiId", api, { "stat" = "Sum", "label" = "${api} Requests" }],
+                ["AWS/ApiGateway", "5XXError", "ApiId", api, { "stat" = "Sum", "label" = "${api} 5XX" }],
+                ["AWS/ApiGateway", "Latency", "ApiId", api, { "stat" = "Average", "label" = "${api} Latency" }],
+                [{ "separator" = true }],
+              ]
+            ])
+            period = 300
+            stat   = "Sum"
+            region = var.region
+            title  = "HTTP APIs - All Gateways"
+          }
+        }
       ]
     )
   })

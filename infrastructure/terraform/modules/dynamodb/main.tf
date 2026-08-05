@@ -32,4 +32,10 @@ resource "aws_dynamodb_table" "this" {
   }
 
   tags = var.tags
+
+  lifecycle {
+    ignore_changes = [
+      tags_all
+    ]
+  }
 }

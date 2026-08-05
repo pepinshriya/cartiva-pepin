@@ -9,31 +9,14 @@ variable "description" {
   default     = null
 }
 
-variable "stage_name" {
-  description = "Deployment stage name"
+variable "target_lambda_arn" {
+  description = "The ARN of the Lambda function to integrate with the $default HTTP route"
   type        = string
-  default     = "v1"
 }
 
-variable "endpoint_types" {
-  description = "List of endpoint configuration types"
-  type        = list(string)
-  default     = ["REGIONAL"]
-}
-
-variable "routes" {
-  description = "Map of route configurations"
-  type = map(object({
-    path_part            = string
-    lambda_invoke_arn    = string
-    lambda_function_name = string
-  }))
-}
-
-variable "lambda_dependency_arns" {
-  description = "List of Lambda function ARNs to force API redeployment on function update"
-  type        = list(string)
-  default     = []
+variable "target_lambda_name" {
+  description = "The name of the Lambda function (used for resource-based permissions)"
+  type        = string
 }
 
 variable "tags" {

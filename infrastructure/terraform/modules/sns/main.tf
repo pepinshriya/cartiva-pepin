@@ -4,6 +4,12 @@ resource "aws_sns_topic" "this" {
   kms_master_key_id = var.kms_master_key_id
 
   tags = var.tags
+
+  lifecycle {
+    ignore_changes = [
+      tags_all
+    ]
+  }
 }
 
 resource "aws_sns_topic_policy" "this" {

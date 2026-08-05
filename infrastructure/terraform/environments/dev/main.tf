@@ -1,349 +1,197 @@
 locals {
-  name_prefix = "ecommerce-dev"
   common_tags = {
     Environment = "dev"
     Project     = "ecommerce-microservices"
     ManagedBy   = "terraform"
   }
-  deployment_bucket = "ecommerce-lambda-deployments-dev"
 }
 
-module "dynamodb_cart" {
-  source = "../../modules/dynamodb"
+data "aws_iam_role" "existing_pepin" {
+  name = "Ecommerce-pepin"
+}
 
-  table_name             = "${local.name_prefix}-cart"
+# --- DynamoDB Tables ---
+
+module "dynamodb_cart" {
+  source                 = "../../modules/dynamodb"
+  table_name             = "cart-pepin"
   hash_key               = "userId"
   billing_mode           = "PAY_PER_REQUEST"
   server_side_encryption = true
-
   attributes = [
-    { name = "userId", type = "S" },
+    { name = "userId", type = "S" }
   ]
-
   tags = local.common_tags
 }
 
-module "dynamodb_products" {
-  source = "../../modules/dynamodb"
-
-  table_name             = "${local.name_prefix}-products"
+module "dynamodb_product" {
+  source                 = "../../modules/dynamodb"
+  table_name             = "product"
   hash_key               = "productId"
   billing_mode           = "PAY_PER_REQUEST"
   server_side_encryption = true
-
   attributes = [
     { name = "productId", type = "S" },
-    { name = "category", type = "S" },
+    { name = "category", type = "S" }
   ]
-
   global_secondary_indexes = [
     {
       name            = "CategoryIndex"
       hash_key        = "category"
       projection_type = "ALL"
-    },
-  ]
-
-  tags = local.common_tags
-}
-
-module "iam_auth" {
-  source = "../../modules/iam"
-
-  role_name             = "${local.name_prefix}-auth-lambda"
-  cognito_user_pool_arn = aws_cognito_user_pool.this.arn
-  enable_cognito_access = true
-  tags                  = local.common_tags
-}
-
-module "iam_product" {
-  source = "../../modules/iam"
-
-  role_name              = "${local.name_prefix}-product-lambda"
-  enable_dynamodb_access = true
-  dynamodb_table_arn     = module.dynamodb_products.arn
-  tags                   = local.common_tags
-}
-
-module "iam_order" {
-  source = "../../modules/iam"
-
-  role_name          = "${local.name_prefix}-order-lambda"
-  enable_sns_publish = true
-  sns_publish_topic_arns = [
-    module.sns_order_events.arn,
+    }
   ]
   tags = local.common_tags
 }
 
-module "iam_cart" {
-  source = "../../modules/iam"
-
-  role_name              = "${local.name_prefix}-cart-lambda"
-  enable_dynamodb_access = true
-  dynamodb_table_arn     = module.dynamodb_cart.arn
-  tags                   = local.common_tags
-}
-
-module "iam_payment" {
-  source = "../../modules/iam"
-
-  role_name          = "${local.name_prefix}-payment-lambda"
-  enable_sns_publish = true
-  sns_publish_topic_arns = [
-    module.sns_payment_events.arn,
+module "dynamodb_inventory" {
+  source                 = "../../modules/dynamodb"
+  table_name             = "inventory-pepin"
+  hash_key               = "productId"
+  billing_mode           = "PAY_PER_REQUEST"
+  server_side_encryption = true
+  attributes = [
+    { name = "productId", type = "S" }
   ]
   tags = local.common_tags
 }
 
-module "iam_notification" {
-  source = "../../modules/iam"
-
-  role_name            = "${local.name_prefix}-notification-lambda"
-  enable_sns_subscribe = true
-  sns_subscribe_topic_arns = [
-    module.sns_order_events.arn,
-    module.sns_payment_events.arn,
+module "dynamodb_order" {
+  source                 = "../../modules/dynamodb"
+  table_name             = "order-pepin"
+  hash_key               = "userId"
+  billing_mode           = "PAY_PER_REQUEST"
+  server_side_encryption = true
+  attributes = [
+    { name = "userId", type = "S" }
   ]
   tags = local.common_tags
 }
 
-module "iam_frontend" {
-  source = "../../modules/iam"
-
-  role_name = "${local.name_prefix}-frontend-lambda"
-  tags      = local.common_tags
-}
-
-module "lambda_auth" {
-  source = "../../modules/lambda"
-
-  function_name = "${local.name_prefix}-auth"
-  role_arn      = module.iam_auth.role_arn
-  handler       = "index"
-  runtime       = "nodejs20.x"
-  memory_size   = 256
-  timeout       = 30
-  s3_bucket     = local.deployment_bucket
-  s3_key        = "auth/latest.zip"
-  publish       = true
-  alias_name    = "dev"
-  environment_variables = {
-    NODE_ENV        = "dev"
-    COGNITO_POOL_ID = aws_cognito_user_pool.this.id
-  }
-  tags = local.common_tags
-}
-
-module "lambda_product" {
-  source = "../../modules/lambda"
-
-  function_name          = "product-service-pepin"
-  existing_function_name = "product-service-pepin"
-  alias_name             = "dev"
-  tags                   = local.common_tags
-}
-
-module "lambda_order" {
-  source = "../../modules/lambda"
-
-  function_name          = "order-service-pepin"
-  existing_function_name = "order-service-pepin"
-  alias_name             = "dev"
-  tags                   = local.common_tags
-}
-
-module "lambda_cart" {
-  source = "../../modules/lambda"
-
-  function_name          = "cart-service-pepin"
-  existing_function_name = "cart-service-pepin"
-  alias_name             = "dev"
-  tags                   = local.common_tags
-}
-
-module "lambda_payment" {
-  source = "../../modules/lambda"
-
-  function_name          = "payment-service-pepin"
-  existing_function_name = "payment-service-pepin"
-  alias_name             = "dev"
-  tags                   = local.common_tags
-}
-
-module "lambda_inventory" {
-  source = "../../modules/lambda"
-
-  function_name          = "inventory-service-pepin"
-  existing_function_name = "inventory-service-pepin"
-  alias_name             = "dev"
-  tags                   = local.common_tags
-}
-
-module "lambda_customer" {
-  source = "../../modules/lambda"
-
-  function_name          = "customer-service-pepin"
-  existing_function_name = "customer-service-pepin"
-  alias_name             = "dev"
-  tags                   = local.common_tags
-}
-
-module "lambda_analytics" {
-  source = "../../modules/lambda"
-
-  function_name          = "analytics-service-pepin"
-  existing_function_name = "analytics-service-pepin"
-  alias_name             = "dev"
-  tags                   = local.common_tags
-}
-
-module "lambda_notification" {
-  source = "../../modules/lambda"
-
-  function_name = "${local.name_prefix}-notification"
-  role_arn      = module.iam_notification.role_arn
-  handler       = "index"
-  runtime       = "nodejs20.x"
-  memory_size   = 256
-  timeout       = 30
-  s3_bucket     = local.deployment_bucket
-  s3_key        = "notification/latest.zip"
-  publish       = true
-  alias_name    = "dev"
-  environment_variables = {
-    NODE_ENV = "dev"
-  }
-  tags = local.common_tags
-}
-
-module "lambda_frontend" {
-  source = "../../modules/lambda"
-
-  function_name = "${local.name_prefix}-frontend"
-  role_arn      = module.iam_frontend.role_arn
-  handler       = "index"
-  runtime       = "nodejs20.x"
-  memory_size   = 256
-  timeout       = 30
-  s3_bucket     = local.deployment_bucket
-  s3_key        = "frontend/latest.zip"
-  publish       = true
-  alias_name    = "dev"
-  environment_variables = {
-    NODE_ENV = "dev"
-  }
-  tags = local.common_tags
-}
-
-resource "aws_cognito_user_pool" "this" {
-  name = "${local.name_prefix}-user-pool"
-
-  auto_verified_attributes = ["email"]
-
-  password_policy {
-    minimum_length    = 8
-    require_lowercase = true
-    require_uppercase = true
-    require_numbers   = true
-    require_symbols   = false
-  }
-
-  tags = local.common_tags
-}
-
-resource "aws_cognito_user_pool_client" "this" {
-  name         = "${local.name_prefix}-client"
-  user_pool_id = aws_cognito_user_pool.this.id
-
-  generate_secret = false
-
-  explicit_auth_flows = [
-    "ALLOW_USER_PASSWORD_AUTH",
-    "ALLOW_REFRESH_TOKEN_AUTH",
+module "dynamodb_payment" {
+  source                 = "../../modules/dynamodb"
+  table_name             = "payment-pepin"
+  hash_key               = "orderId"
+  billing_mode           = "PAY_PER_REQUEST"
+  server_side_encryption = true
+  attributes = [
+    { name = "orderId", type = "S" }
   ]
+  tags = local.common_tags
 }
 
-resource "aws_cognito_user_pool_domain" "this" {
-  domain       = "${local.name_prefix}-auth"
-  user_pool_id = aws_cognito_user_pool.this.id
-}
+# --- SNS Topics ---
 
 module "sns_order_events" {
-  source = "../../modules/sns"
-
-  topic_name   = "${local.name_prefix}-order-events"
+  source       = "../../modules/sns"
+  topic_name   = "order-events-topic-pepin"
   display_name = "Order Events"
   tags         = local.common_tags
 }
 
-module "sns_payment_events" {
-  source = "../../modules/sns"
+# --- Lambda Functions ---
 
-  topic_name   = "${local.name_prefix}-payment-events"
-  display_name = "Payment Events"
-  tags         = local.common_tags
+module "lambda_product" {
+  source                 = "../../modules/lambda"
+  function_name          = "product-service-pepin"
+  existing_function_name = "product-service-pepin"
+  alias_name             = "dev"
+  role_arn               = data.aws_iam_role.existing_pepin.arn
+  tags                   = local.common_tags
 }
 
-module "api_gateway" {
-  source = "../../modules/api-gateway"
-
-  api_name    = "${local.name_prefix}-api"
-  description = "E-commerce microservices API (dev)"
-  stage_name  = "v1"
-
-  routes = {
-    auth         = { path_part = "auth", lambda_invoke_arn = module.lambda_auth.alias_invoke_arn, lambda_function_name = module.lambda_auth.function_name }
-    product      = { path_part = "products", lambda_invoke_arn = module.lambda_product.alias_invoke_arn, lambda_function_name = module.lambda_product.function_name }
-    order        = { path_part = "orders", lambda_invoke_arn = module.lambda_order.alias_invoke_arn, lambda_function_name = module.lambda_order.function_name }
-    cart         = { path_part = "cart", lambda_invoke_arn = module.lambda_cart.alias_invoke_arn, lambda_function_name = module.lambda_cart.function_name }
-    payment      = { path_part = "payments", lambda_invoke_arn = module.lambda_payment.alias_invoke_arn, lambda_function_name = module.lambda_payment.function_name }
-    inventory    = { path_part = "inventory", lambda_invoke_arn = module.lambda_inventory.alias_invoke_arn, lambda_function_name = module.lambda_inventory.function_name }
-    customer     = { path_part = "customers", lambda_invoke_arn = module.lambda_customer.alias_invoke_arn, lambda_function_name = module.lambda_customer.function_name }
-    analytics    = { path_part = "analytics", lambda_invoke_arn = module.lambda_analytics.alias_invoke_arn, lambda_function_name = module.lambda_analytics.function_name }
-    notification = { path_part = "notifications", lambda_invoke_arn = module.lambda_notification.alias_invoke_arn, lambda_function_name = module.lambda_notification.function_name }
-    frontend     = { path_part = "frontend", lambda_invoke_arn = module.lambda_frontend.alias_invoke_arn, lambda_function_name = module.lambda_frontend.function_name }
-  }
-
-  lambda_dependency_arns = [
-    module.lambda_auth.qualified_arn,
-    module.lambda_product.qualified_arn,
-    module.lambda_order.qualified_arn,
-    module.lambda_cart.qualified_arn,
-    module.lambda_payment.qualified_arn,
-    module.lambda_inventory.qualified_arn,
-    module.lambda_customer.qualified_arn,
-    module.lambda_analytics.qualified_arn,
-    module.lambda_notification.qualified_arn,
-    module.lambda_frontend.qualified_arn,
-  ]
-
-  tags = local.common_tags
+module "lambda_order" {
+  source                 = "../../modules/lambda"
+  function_name          = "order-service-pepin"
+  existing_function_name = "order-service-pepin"
+  alias_name             = "dev"
+  role_arn               = data.aws_iam_role.existing_pepin.arn
+  tags                   = local.common_tags
 }
 
-module "cloudwatch" {
-  source = "../../modules/cloudwatch"
+module "lambda_cart" {
+  source                 = "../../modules/lambda"
+  function_name          = "cart-service-pepin"
+  existing_function_name = "cart-service-pepin"
+  alias_name             = "dev"
+  role_arn               = data.aws_iam_role.existing_pepin.arn
+  tags                   = local.common_tags
+}
 
-  lambda_function_names = [
-    module.lambda_auth.function_name,
-    module.lambda_product.function_name,
-    module.lambda_order.function_name,
-    module.lambda_cart.function_name,
-    module.lambda_payment.function_name,
-    module.lambda_inventory.function_name,
-    module.lambda_customer.function_name,
-    module.lambda_analytics.function_name,
-    module.lambda_notification.function_name,
-    module.lambda_frontend.function_name,
-  ]
-  api_gateway_names = [
-    module.api_gateway.api_name,
-  ]
-  log_retention_days    = 14
-  create_dashboard      = true
-  dashboard_name        = "${local.name_prefix}-dashboard"
-  region                = var.aws_region
-  error_alarm_threshold = 3
-  alarm_sns_arns        = [module.sns_order_events.arn]
-  tags                  = local.common_tags
+module "lambda_payment" {
+  source                 = "../../modules/lambda"
+  function_name          = "payment-service-pepin"
+  existing_function_name = "payment-service-pepin"
+  alias_name             = "dev"
+  role_arn               = data.aws_iam_role.existing_pepin.arn
+  tags                   = local.common_tags
+}
+
+module "lambda_inventory" {
+  source                 = "../../modules/lambda"
+  function_name          = "inventory-service-pepin"
+  existing_function_name = "inventory-service-pepin"
+  alias_name             = "dev"
+  role_arn               = data.aws_iam_role.existing_pepin.arn
+  tags                   = local.common_tags
+}
+
+module "lambda_customer" {
+  source                 = "../../modules/lambda"
+  function_name          = "customer-service-pepin"
+  existing_function_name = "customer-service-pepin"
+  alias_name             = "dev"
+  role_arn               = data.aws_iam_role.existing_pepin.arn
+  tags                   = local.common_tags
+}
+
+module "lambda_analytics" {
+  source                 = "../../modules/lambda"
+  function_name          = "analytics-service-pepin"
+  existing_function_name = "analytics-service-pepin"
+  alias_name             = "dev"
+  role_arn               = data.aws_iam_role.existing_pepin.arn
+  tags                   = local.common_tags
+}
+
+# --- API Gateways (HTTP API v2) ---
+
+module "api_gateway_product" {
+  source             = "../../modules/api-gateway"
+  api_name           = "product-service-pepin-API"
+  target_lambda_arn  = module.lambda_product.invoke_arn
+  target_lambda_name = module.lambda_product.function_name
+  tags               = local.common_tags
+}
+
+module "api_gateway_cart" {
+  source             = "../../modules/api-gateway"
+  api_name           = "cart-service-api-pepin"
+  target_lambda_arn  = module.lambda_cart.invoke_arn
+  target_lambda_name = module.lambda_cart.function_name
+  tags               = local.common_tags
+}
+
+module "api_gateway_payment" {
+  source             = "../../modules/api-gateway"
+  api_name           = "payment-service-api-pepin"
+  target_lambda_arn  = module.lambda_payment.invoke_arn
+  target_lambda_name = module.lambda_payment.function_name
+  tags               = local.common_tags
+}
+
+module "api_gateway_customer" {
+  source             = "../../modules/api-gateway"
+  api_name           = "customer-service-pepin-API"
+  target_lambda_arn  = module.lambda_customer.invoke_arn
+  target_lambda_name = module.lambda_customer.function_name
+  tags               = local.common_tags
+}
+
+module "api_gateway_analytics" {
+  source             = "../../modules/api-gateway"
+  api_name           = "analytics-service-pepin-API"
+  target_lambda_arn  = module.lambda_analytics.invoke_arn
+  target_lambda_name = module.lambda_analytics.function_name
+  tags               = local.common_tags
 }

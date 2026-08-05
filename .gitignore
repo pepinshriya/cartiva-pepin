@@ -34,3 +34,9 @@ npm-debug.log*
 
 # Terraform
 infrastructure/terraform/**/.terraform/
+
+**/.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfplan
+crash.log

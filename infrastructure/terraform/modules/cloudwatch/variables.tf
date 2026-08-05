@@ -4,8 +4,8 @@ variable "lambda_function_names" {
   default     = []
 }
 
-variable "api_gateway_names" {
-  description = "List of API Gateway API names to monitor"
+variable "api_gateway_ids" {
+  description = "List of API Gateway HTTP API IDs to monitor"
   type        = list(string)
   default     = []
 }

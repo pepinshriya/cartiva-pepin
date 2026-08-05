@@ -2,46 +2,32 @@ data "archive_file" "this" {
   count       = var.create_package ? 1 : 0
   type        = "zip"
   output_path = "${path.module}/.build/${var.function_name}.zip"
-
   source {
     content  = var.source_code
     filename = "${var.handler}.js"
   }
 }
 
-data "aws_lambda_function" "existing" {
-  count = var.existing_function_name != null ? 1 : 0
-
-  function_name = var.existing_function_name
-}
-
-locals {
-  function_arn  = var.existing_function_name != null ? data.aws_lambda_function.existing[0].arn : aws_lambda_function.this[0].arn
-  function_name = var.existing_function_name != null ? data.aws_lambda_function.existing[0].function_name : aws_lambda_function.this[0].function_name
-  invoke_arn    = var.existing_function_name != null ? data.aws_lambda_function.existing[0].invoke_arn : aws_lambda_function.this[0].invoke_arn
-  qualified_arn = var.existing_function_name != null ? data.aws_lambda_function.existing[0].qualified_arn : aws_lambda_function.this[0].qualified_arn
-}
-
 resource "aws_lambda_function" "this" {
-  count = var.existing_function_name != null ? 0 : 1
-
   function_name = var.function_name
   role          = var.role_arn
-  handler       = "${var.handler}.handler"
+  handler       = var.handler != null ? "${var.handler}.handler" : "index.handler"
   runtime       = var.runtime
   memory_size   = var.memory_size
   timeout       = var.timeout
   publish       = var.publish
 
-  filename         = var.create_package ? "${path.module}/.build/${var.function_name}.zip" : null
-  source_code_hash = var.create_package ? data.archive_file.this[0].output_base64sha256 : null
-
-  s3_bucket         = var.s3_bucket
-  s3_key            = var.s3_key
+  filename          = var.create_package ? "${path.module}/.build/${var.function_name}.zip" : null
+  source_code_hash  = var.create_package ? data.archive_file.this[0].output_base64sha256 : null
+  s3_bucket         = var.s3_bucket != null ? var.s3_bucket : "unused-placeholder-ignored-via-lifecycle"
+  s3_key            = var.s3_key != null ? var.s3_key : "unused-placeholder-ignored-via-lifecycle"
   s3_object_version = var.s3_object_version
 
-  environment {
-    variables = var.environment_variables
+  dynamic "environment" {
+    for_each = length(var.environment_variables) > 0 ? [1] : []
+    content {
+      variables = var.environment_variables
+    }
   }
 
   dynamic "file_system_config" {
@@ -60,7 +46,31 @@ resource "aws_lambda_function" "this" {
     }
   }
 
+  tracing_config {
+    mode = "Active"
+  }
+
   tags = var.tags
+
+  lifecycle {
+    ignore_changes = [
+      filename,
+      source_code_hash,
+      s3_bucket,
+      s3_key,
+      s3_object_version,
+      environment,
+      role,
+      handler,
+      runtime,
+      memory_size,
+      timeout,
+      publish,
+      tags,
+      tags_all,
+      layers,
+    ]
+  }
 }
 
 resource "aws_lambda_alias" "this" {
@@ -68,8 +78,8 @@ resource "aws_lambda_alias" "this" {
 
   name             = var.alias_name
   description      = "Deployment alias for ${var.function_name}"
-  function_name    = local.function_arn
-  function_version = var.existing_function_name != null ? "$LATEST" : aws_lambda_function.this[0].version
+  function_name    = aws_lambda_function.this.arn
+  function_version = aws_lambda_function.this.version
 
   lifecycle {
     ignore_changes = [function_version]

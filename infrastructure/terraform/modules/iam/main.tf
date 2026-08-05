@@ -51,10 +51,12 @@ data "aws_iam_policy_document" "dynamodb" {
       "dynamodb:BatchGetItem",
       "dynamodb:BatchWriteItem",
     ]
-    resources = [
-      var.dynamodb_table_arn,
-      "${var.dynamodb_table_arn}/index/*",
-    ]
+    resources = flatten([
+      for arn in var.dynamodb_table_arns : [
+        arn,
+        "${arn}/index/*"
+      ]
+    ])
   }
 }
 

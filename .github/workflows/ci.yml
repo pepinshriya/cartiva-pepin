@@ -37,6 +37,12 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Run Snyk Open Source Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
       - name: Package Lambda code into ZIP
         run: |
           mkdir -p package
@@ -87,6 +93,12 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Run Snyk Open Source Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Package Lambda code into ZIP
         run: |
@@ -139,6 +151,12 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Run Snyk Open Source Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
       - name: Package Lambda code into ZIP
         run: |
           mkdir -p package
@@ -189,6 +207,12 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Run Snyk Open Source Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Package Lambda code into ZIP
         run: |
@@ -241,6 +265,12 @@ jobs:
       - name: Run tests
         run: npm test
 
+      - name: Run Snyk Open Source Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
       - name: Package Lambda code into ZIP
         run: |
           mkdir -p package
@@ -291,6 +321,12 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Run Snyk Open Source Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Package Lambda code into ZIP
         run: |
@@ -343,6 +379,12 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: Run Snyk Open Source Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
       - name: Verify build output
         run: |
           if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then
@@ -377,6 +419,12 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Run Snyk Open Source Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Package Lambda code into ZIP
         run: |
