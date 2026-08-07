@@ -400,6 +400,17 @@ jobs:
           echo "dist folder verified:"
           ls -la dist/
 
+      - name: Package Frontend into ZIP
+        run: |
+          (cd dist && zip -qrX "../frontend-build.zip" .)
+
+      - name: Upload Frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/frontend-build.zip
+          retention-days: 7
+
   payment-service:
     name: Payment Service CI
     runs-on: ubuntu-latest

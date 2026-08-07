@@ -17,15 +17,36 @@ const validateStockData = (data) => {
     }
   }
 
-  if (typeof data.quantity !== 'number' || data.quantity < 0) {
-    throw { statusCode: 400, message: 'Quantity must be a non-negative number' };
+  if (data.currentStock !== undefined) {
+    if (typeof data.currentStock !== 'number' || data.currentStock < 0) {
+      throw { statusCode: 400, message: 'currentStock must be a non-negative number' };
+    }
+  }
+
+  if (data.reservedStock !== undefined) {
+    if (typeof data.reservedStock !== 'number' || data.reservedStock < 0) {
+      throw { statusCode: 400, message: 'reservedStock must be a non-negative number' };
+    }
+  }
+
+  if (data.threshold !== undefined) {
+    if (typeof data.threshold !== 'number' || data.threshold < 0) {
+      throw { statusCode: 400, message: 'threshold must be a non-negative number' };
+    }
+  }
+
+  if (data.status !== undefined) {
+    throw {
+      statusCode: 400,
+      message: 'status cannot be updated manually; it is calculated automatically',
+    };
+  }
+  if (data.createdAt !== undefined) {
+    throw { statusCode: 400, message: 'createdAt cannot be modified manually' };
+  }
+  if (data.updatedAt !== undefined) {
+    throw { statusCode: 400, message: 'updatedAt cannot be modified manually' };
   }
 };
 
-const validateQuantity = (quantity) => {
-  if (quantity === undefined || quantity === null || typeof quantity !== 'number' || quantity < 0) {
-    throw { statusCode: 400, message: 'Valid quantity must be a non-negative number' };
-  }
-};
-
-module.exports = { validateProductId, validateStockData, validateQuantity };
+module.exports = { validateProductId, validateStockData };

@@ -49,7 +49,7 @@ export const getInventoryItem = async (productId) => {
 export const restockItem = async (productId, quantity, _note) => {
   try {
     const response = await api.patch(`/api/inventory/${productId}/increase`, {
-      quantity: Number(quantity),
+      currentStock: Number(quantity),
     });
     const updated = response.data?.data ?? response.data;
     return transformItem(updated);
@@ -59,12 +59,10 @@ export const restockItem = async (productId, quantity, _note) => {
   }
 };
 
-export const adjustStock = async (productId, quantity, reason) => {
+export const adjustStock = async (productId, quantity) => {
   try {
-    const response = await api.post('/api/inventory/adjust', {
-      productId,
-      quantity: Number(quantity),
-      reason: reason || '',
+    const response = await api.put(`/api/inventory/${productId}`, {
+      currentStock: Number(quantity),
     });
     const updated = response.data?.data ?? response.data;
     return transformItem(updated);

@@ -16,6 +16,7 @@ on:
           - order-service
           - payment-service
           - product-service
+          - frontend
           - all
 
 permissions:
@@ -66,11 +67,12 @@ jobs:
         with:
           workflow: ci.yml
           workflow_conclusion: success
-          branch: main
-          name: lambda-${{ matrix.service }}
+          branch: ${{ github.ref_name }}
+          name: ${{ matrix.service == 'frontend' && 'frontend-build' || format('lambda-{0}', matrix.service) }}
           path: ${{ matrix.service }}
 
       - name: Deploy Lambda function code and update alias
+        if: ${{ matrix.service != 'frontend' }}
         run: |
           SERVICE_NAME="${{ matrix.service }}"
           FUNCTION_NAME="${SERVICE_NAME}-pepin"
@@ -129,6 +131,7 @@ jobs:
           fi
 
       - name: Verify active alias deployment
+        if: ${{ matrix.service != 'frontend' }}
         run: |
           SERVICE_NAME="${{ matrix.service }}"
           FUNCTION_NAME="${SERVICE_NAME}-pepin"
@@ -149,3 +152,41 @@ jobs:
           echo "Success! ${FUNCTION_NAME} 'dev' alias is currently active:"
           echo "  - Function Version : ${ACTIVE_VERSION}"
           echo "  - Alias ARN        : ${ALIAS_ARN}"
+
+      - name: Deploy Frontend to S3 and CloudFront
+        if: ${{ matrix.service == 'frontend' }}
+        run: |
+          SERVICE_NAME="${{ matrix.service }}"
+          ZIP_PATH="${SERVICE_NAME}/frontend-build.zip"
+
+          echo "=========================================="
+          echo "Deploying Frontend to S3 and CloudFront"
+          echo "ZIP file: ${ZIP_PATH}"
+          echo "=========================================="
+
+          if [ ! -f "${ZIP_PATH}" ]; then
+            echo "::error::Artifact ZIP file not found at ${ZIP_PATH}"
+            exit 1
+          fi
+
+          echo "Extracting frontend build..."
+          mkdir -p ${SERVICE_NAME}/dist
+          unzip -q ${ZIP_PATH} -d ${SERVICE_NAME}/dist
+
+          echo "Syncing to S3..."
+          aws s3 sync ${SERVICE_NAME}/dist/ s3://${{ secrets.FRONTEND_BUCKET }} --delete
+
+          echo "Verifying S3 upload..."
+          aws s3 ls s3://${{ secrets.FRONTEND_BUCKET }}
+
+          echo "Invalidating CloudFront cache..."
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*" \
+            --query 'Invalidation.Id' \
+            --output text)
+            
+          echo "Waiting for invalidation $INVALIDATION_ID to complete..."
+          aws cloudfront wait invalidation-completed \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --id $INVALIDATION_ID
