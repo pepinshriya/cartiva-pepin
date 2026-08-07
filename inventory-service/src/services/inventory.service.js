@@ -52,6 +52,7 @@ const getStock = async (productId) => {
 
 const updateStock = async (productId, data) => {
   validateProductId(productId);
+  data.productId = data.productId || productId;
   validateStockData(data);
 
   const existing = await inventoryRepository.findByProductId(productId);
@@ -83,6 +84,7 @@ const updateStock = async (productId, data) => {
 
 const reduceStock = async (productId, data) => {
   validateProductId(productId);
+  data.productId = data.productId || productId;
   validateStockData(data);
 
   if (data.currentStock === undefined) {
@@ -113,6 +115,7 @@ const reduceStock = async (productId, data) => {
 
 const increaseStock = async (productId, data) => {
   validateProductId(productId);
+  data.productId = data.productId || productId;
   validateStockData(data);
 
   if (data.currentStock === undefined) {

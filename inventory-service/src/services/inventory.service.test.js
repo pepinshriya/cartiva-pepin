@@ -12,20 +12,20 @@ describe('addStock', () => {
     inventoryRepository.findByProductId.mockResolvedValue(null);
     inventoryRepository.create.mockImplementation(async (item) => item);
 
-    const result = await inventoryService.addStock({ productId: 'p1', quantity: 50 });
+    const result = await inventoryService.addStock({ productId: 'p1', currentStock: 50 });
 
     expect(result).toMatchObject({
       productId: 'p1',
-      quantity: 50,
+      currentStock: 50,
       updatedAt: expect.any(String),
     });
   });
 
   it('should throw 409 when stock already exists for the product', async () => {
-    inventoryRepository.findByProductId.mockResolvedValue({ productId: 'p1', quantity: 10 });
+    inventoryRepository.findByProductId.mockResolvedValue({ productId: 'p1', currentStock: 10 });
 
     await expect(
-      inventoryService.addStock({ productId: 'p1', quantity: 50 })
+      inventoryService.addStock({ productId: 'p1', currentStock: 50 })
     ).rejects.toMatchObject({ statusCode: 409 });
   });
 });
@@ -36,7 +36,7 @@ describe('getStock', () => {
   });
 
   it('should return the stock when found', async () => {
-    const fakeStock = { productId: 'p1', quantity: 20 };
+    const fakeStock = { productId: 'p1', currentStock: 20 };
     inventoryRepository.findByProductId.mockResolvedValue(fakeStock);
 
     const result = await inventoryService.getStock('p1');
@@ -58,15 +58,16 @@ describe('updateStock', () => {
     jest.clearAllMocks();
   });
 
-  it('should update the quantity when stock exists', async () => {
-    inventoryRepository.findByProductId.mockResolvedValue({ productId: 'p1', quantity: 10 });
-    inventoryRepository.update.mockResolvedValue({ productId: 'p1', quantity: 99 });
+  it('should update the currentStock when stock exists', async () => {
+    inventoryRepository.findByProductId.mockResolvedValue({ productId: 'p1', currentStock: 10 });
+    inventoryRepository.update.mockResolvedValue({ productId: 'p1', currentStock: 99 });
 
-    const result = await inventoryService.updateStock('p1', { quantity: 99 });
+    const result = await inventoryService.updateStock('p1', { currentStock: 99 });
 
-    expect(result).toEqual({ productId: 'p1', quantity: 99 });
+    expect(result).toEqual({ productId: 'p1', currentStock: 99 });
     expect(inventoryRepository.update).toHaveBeenCalledWith('p1', {
-      quantity: 99,
+      currentStock: 99,
+      status: 'IN_STOCK',
       updatedAt: expect.any(String),
     });
   });
@@ -74,7 +75,7 @@ describe('updateStock', () => {
   it('should throw 404 when stock does not exist', async () => {
     inventoryRepository.findByProductId.mockResolvedValue(null);
 
-    await expect(inventoryService.updateStock('p1', { quantity: 99 })).rejects.toMatchObject({
+    await expect(inventoryService.updateStock('p1', { currentStock: 99 })).rejects.toMatchObject({
       statusCode: 404,
     });
   });
@@ -85,23 +86,24 @@ describe('reduceStock', () => {
     jest.clearAllMocks();
   });
 
-  it('should reduce quantity when there is enough stock', async () => {
-    inventoryRepository.findByProductId.mockResolvedValue({ productId: 'p1', quantity: 50 });
-    inventoryRepository.update.mockResolvedValue({ productId: 'p1', quantity: 30 });
+  it('should reduce currentStock when there is enough stock', async () => {
+    inventoryRepository.findByProductId.mockResolvedValue({ productId: 'p1', currentStock: 50 });
+    inventoryRepository.update.mockResolvedValue({ productId: 'p1', currentStock: 30 });
 
-    const result = await inventoryService.reduceStock('p1', { quantity: 20 });
+    const result = await inventoryService.reduceStock('p1', { currentStock: 20 });
 
-    expect(result).toEqual({ productId: 'p1', quantity: 30 });
+    expect(result).toEqual({ productId: 'p1', currentStock: 30 });
     expect(inventoryRepository.update).toHaveBeenCalledWith('p1', {
-      quantity: 30,
+      currentStock: 30,
+      status: 'IN_STOCK',
       updatedAt: expect.any(String),
     });
   });
 
   it('should throw 400 when reducing more than available stock', async () => {
-    inventoryRepository.findByProductId.mockResolvedValue({ productId: 'p1', quantity: 5 });
+    inventoryRepository.findByProductId.mockResolvedValue({ productId: 'p1', currentStock: 5 });
 
-    await expect(inventoryService.reduceStock('p1', { quantity: 20 })).rejects.toMatchObject({
+    await expect(inventoryService.reduceStock('p1', { currentStock: 20 })).rejects.toMatchObject({
       statusCode: 400,
       message: 'Insufficient stock',
     });
@@ -112,7 +114,7 @@ describe('reduceStock', () => {
   it('should throw 404 when stock does not exist', async () => {
     inventoryRepository.findByProductId.mockResolvedValue(null);
 
-    await expect(inventoryService.reduceStock('p1', { quantity: 20 })).rejects.toMatchObject({
+    await expect(inventoryService.reduceStock('p1', { currentStock: 20 })).rejects.toMatchObject({
       statusCode: 404,
     });
   });
@@ -123,15 +125,16 @@ describe('increaseStock', () => {
     jest.clearAllMocks();
   });
 
-  it('should increase quantity when stock exists', async () => {
-    inventoryRepository.findByProductId.mockResolvedValue({ productId: 'p1', quantity: 10 });
-    inventoryRepository.update.mockResolvedValue({ productId: 'p1', quantity: 40 });
+  it('should increase currentStock when stock exists', async () => {
+    inventoryRepository.findByProductId.mockResolvedValue({ productId: 'p1', currentStock: 10 });
+    inventoryRepository.update.mockResolvedValue({ productId: 'p1', currentStock: 40 });
 
-    const result = await inventoryService.increaseStock('p1', { quantity: 30 });
+    const result = await inventoryService.increaseStock('p1', { currentStock: 30 });
 
-    expect(result).toEqual({ productId: 'p1', quantity: 40 });
+    expect(result).toEqual({ productId: 'p1', currentStock: 40 });
     expect(inventoryRepository.update).toHaveBeenCalledWith('p1', {
-      quantity: 40,
+      currentStock: 40,
+      status: 'IN_STOCK',
       updatedAt: expect.any(String),
     });
   });
@@ -139,7 +142,7 @@ describe('increaseStock', () => {
   it('should throw 404 when stock does not exist', async () => {
     inventoryRepository.findByProductId.mockResolvedValue(null);
 
-    await expect(inventoryService.increaseStock('p1', { quantity: 30 })).rejects.toMatchObject({
+    await expect(inventoryService.increaseStock('p1', { currentStock: 30 })).rejects.toMatchObject({
       statusCode: 404,
     });
   });
@@ -152,8 +155,8 @@ describe('getAllInventory', () => {
 
   it('should return all inventory items', async () => {
     const fakeItems = [
-      { productId: 'p1', quantity: 10 },
-      { productId: 'p2', quantity: 20 },
+      { productId: 'p1', currentStock: 10 },
+      { productId: 'p2', currentStock: 20 },
     ];
     inventoryRepository.findAll.mockResolvedValue(fakeItems);
 
