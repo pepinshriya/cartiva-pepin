@@ -1,10 +1,12 @@
 const orderService = require('./order.service');
 const orderRepository = require('../repositories/order.repository');
 const cartClient = require('../clients/cart.client');
+const inventoryClient = require('../clients/inventory.client');
 const orderPublisher = require('../events/order.publisher');
 
 jest.mock('../repositories/order.repository');
 jest.mock('../clients/cart.client');
+jest.mock('../clients/inventory.client');
 jest.mock('../events/order.publisher');
 jest.mock('uuid', () => ({ v4: () => 'fixed-order-id' }));
 
@@ -18,6 +20,8 @@ describe('placeOrder', () => {
       items: [{ productId: 'p1', quantity: 2, price: 100 }],
       totalPrice: 200,
     });
+    inventoryClient.getStock.mockResolvedValue({ currentStock: 10 });
+    inventoryClient.reduceStock.mockResolvedValue({});
     orderRepository.create.mockImplementation(async (order) => order);
     orderPublisher.publishOrderCreated.mockResolvedValue({});
 

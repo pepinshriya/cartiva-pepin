@@ -3,6 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const orderRepository = require('../repositories/order.repository');
 const OrderModel = require('../models/order.model');
 const cartClient = require('../clients/cart.client');
+const inventoryClient = require('../clients/inventory.client');
 
 // SNS Publisher
 const orderPublisher = require('../events/order.publisher');
@@ -21,6 +22,24 @@ const placeOrder = async (data) => {
       statusCode: 400,
       message: 'Cart is empty',
     };
+  }
+
+  // Phase 1: Validate stock for all items
+  for (const item of cart.items) {
+    const stockData = await inventoryClient.getStock(item.productId);
+    const availableStock = stockData.currentStock ?? stockData.stock ?? 0;
+
+    if (availableStock < item.quantity) {
+      throw {
+        statusCode: 400,
+        message: `Insufficient stock for product ${item.productId}. Available: ${availableStock}, Requested: ${item.quantity}`,
+      };
+    }
+  }
+
+  // Phase 1: Reduce stock for all items
+  for (const item of cart.items) {
+    await inventoryClient.reduceStock(item.productId, item.quantity);
   }
 
   const order = {
