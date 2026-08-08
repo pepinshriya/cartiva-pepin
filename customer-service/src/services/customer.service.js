@@ -27,14 +27,25 @@ const mapUser = (user) => {
   };
 };
 
-const getCustomers = async () => {
+const getCustomers = async (authHeader) => {
   const command = new ListUsersCommand({
     UserPoolId: USER_POOL_ID,
     Limit: 60,
   });
 
   const result = await cognitoClient.send(command);
-  return (result.Users || []).map(mapUser);
+  const users = (result.Users || []).map(mapUser);
+
+  const enrichedUsers = await Promise.all(
+    users.map(async (customer) => {
+      const orders = await getCustomerOrders(customer.customerId, authHeader);
+      customer.totalOrders = orders.length;
+      customer.totalSpending = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+      return customer;
+    })
+  );
+
+  return enrichedUsers;
 };
 
 const getCustomerById = async (customerId, authHeader) => {

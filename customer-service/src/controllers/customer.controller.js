@@ -3,7 +3,7 @@ const response = require('../utils/response');
 
 const getCustomers = async (req, res, next) => {
   try {
-    const customers = await customerService.getCustomers();
+    const customers = await customerService.getCustomers(req.headers.authorization);
     return response.success(res, customers);
   } catch (err) {
     next(err);
