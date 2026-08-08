@@ -11,7 +11,7 @@ const orderPublisher = require('../events/order.publisher');
 const { validateOrderId, validateUserId } = require('../utils/validator');
 
 // PLACE ORDER
-const placeOrder = async (data) => {
+const placeOrder = async (data, authHeader) => {
   validateUserId(data.userId);
 
   // Call Cart Service
@@ -26,7 +26,7 @@ const placeOrder = async (data) => {
 
   // Phase 1: Validate stock for all items
   for (const item of cart.items) {
-    const stockData = await inventoryClient.getStock(item.productId);
+    const stockData = await inventoryClient.getStock(item.productId, authHeader);
     const availableStock = stockData.currentStock ?? stockData.stock ?? 0;
 
     if (availableStock < item.quantity) {
@@ -39,7 +39,7 @@ const placeOrder = async (data) => {
 
   // Phase 1: Reduce stock for all items
   for (const item of cart.items) {
-    await inventoryClient.reduceStock(item.productId, item.quantity);
+    await inventoryClient.reduceStock(item.productId, item.quantity, authHeader);
   }
 
   const order = {

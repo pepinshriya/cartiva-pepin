@@ -3,7 +3,7 @@ const response = require('../utils/response');
 
 const placeOrder = async (req, res, next) => {
   try {
-    const order = await orderService.placeOrder(req.body);
+    const order = await orderService.placeOrder(req.body, req.headers.authorization);
     return response.created(res, order);
   } catch (err) {
     next(err);

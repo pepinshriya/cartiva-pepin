@@ -2,9 +2,10 @@ const axios = require('axios');
 
 const INVENTORY_SERVICE_URL = process.env.INVENTORY_SERVICE_URL || 'http://localhost:3002';
 
-const getStock = async (productId) => {
+const getStock = async (productId, authHeader) => {
   try {
     const response = await axios.get(`${INVENTORY_SERVICE_URL}/api/inventory/${productId}`, {
+      headers: authHeader ? { Authorization: authHeader } : {},
       timeout: 5000,
     });
 
@@ -17,7 +18,7 @@ const getStock = async (productId) => {
   }
 };
 
-const reduceStock = async (productId, quantity) => {
+const reduceStock = async (productId, quantity, authHeader) => {
   try {
     const response = await axios.patch(
       `${INVENTORY_SERVICE_URL}/api/inventory/${productId}/reduce`,
@@ -25,6 +26,7 @@ const reduceStock = async (productId, quantity) => {
         currentStock: quantity,
       },
       {
+        headers: authHeader ? { Authorization: authHeader } : {},
         timeout: 5000,
       }
     );
