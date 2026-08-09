@@ -40,3 +40,8 @@ infrastructure/terraform/**/.terraform/
 *.tfstate.*
 terraform.tfplan
 crash.log
+
+inventory-service/unzipped-final/
+inventory-service/unzipped-function/
+project_files.txt
+tree_output.txt

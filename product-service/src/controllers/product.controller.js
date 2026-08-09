@@ -3,7 +3,7 @@ const response = require('../utils/response');
 
 const create = async (req, res, next) => {
   try {
-    const product = await productService.createProduct(req.body);
+    const product = await productService.createProduct(req.body, req.headers.authorization);
     return response.created(res, product);
   } catch (err) {
     next(err);

@@ -4,20 +4,31 @@ const productRepository = require('../repositories/product.repository');
 jest.mock('../repositories/product.repository');
 jest.mock('uuid', () => ({ v4: () => 'fixed-product-id' }));
 
+const { createInventory } = require('../clients/inventory.client');
+jest.mock('../clients/inventory.client');
+
+// We still mock the publisher just in case, though it's commented out in code.
+const { publishProductCreated } = require('../events/product.publisher');
+jest.mock('../events/product.publisher');
+
 describe('createProduct', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should create a product with valid data', async () => {
+  it('should create a product with valid data and default initialStock to 0', async () => {
     productRepository.create.mockImplementation(async (product) => product);
+    createInventory.mockResolvedValue();
 
-    const result = await productService.createProduct({
-      name: 'Shirt',
-      description: 'Cotton shirt',
-      category: 'Clothing',
-      price: 100,
-    });
+    const result = await productService.createProduct(
+      {
+        name: 'Shirt',
+        description: 'Cotton shirt',
+        category: 'Clothing',
+        price: 100,
+      },
+      'Bearer token123'
+    );
 
     expect(result).toMatchObject({
       productId: 'fixed-product-id',
@@ -28,6 +39,63 @@ describe('createProduct', () => {
       imageUrl: '',
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
+    });
+
+    expect(createInventory).toHaveBeenCalledWith(
+      {
+        productId: 'fixed-product-id',
+        currentStock: 0,
+        reservedStock: 0,
+        threshold: 10,
+      },
+      'Bearer token123'
+    );
+
+    // Ensure SNS is not invoked
+    expect(publishProductCreated).not.toHaveBeenCalled();
+  });
+
+  it('should create a product and pass initialStock to inventory client', async () => {
+    productRepository.create.mockImplementation(async (product) => product);
+    createInventory.mockResolvedValue();
+
+    const result = await productService.createProduct(
+      {
+        name: 'Shirt',
+        description: 'Cotton shirt',
+        category: 'Clothing',
+        price: 100,
+        initialStock: 50,
+      },
+      'Bearer token123'
+    );
+
+    expect(createInventory).toHaveBeenCalledWith(
+      {
+        productId: 'fixed-product-id',
+        currentStock: 50,
+        reservedStock: 0,
+        threshold: 10,
+      },
+      'Bearer token123'
+    );
+  });
+
+  it('should throw 502 error if inventory initialization fails', async () => {
+    productRepository.create.mockImplementation(async (product) => product);
+    createInventory.mockRejectedValue(new Error('Network Error'));
+
+    await expect(
+      productService.createProduct({
+        name: 'Shirt',
+        description: 'Cotton shirt',
+        category: 'Clothing',
+        price: 100,
+        initialStock: 50,
+      })
+    ).rejects.toMatchObject({
+      statusCode: 502,
+      message: 'Product created successfully, but inventory initialization failed: Network Error',
     });
   });
 });
