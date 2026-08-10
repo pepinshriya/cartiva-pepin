@@ -88,6 +88,10 @@ export const createProduct = async (productData) => {
       inStock: productData.inStock ?? true,
     };
 
+    if (productData.initialStock !== undefined && productData.initialStock !== '') {
+      payload.initialStock = Number(productData.initialStock);
+    }
+
     const response = await productApi.post('/api/products', payload);
     const created = response.data?.data ?? response.data;
     return transformProduct(created);

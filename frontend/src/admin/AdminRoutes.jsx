@@ -7,7 +7,6 @@ import Inventory from './pages/Inventory/Inventory';
 import Orders from './pages/Orders/Orders';
 import Customers from './pages/Customers/Customers';
 import Reports from './pages/Reports/Reports';
-import Settings from './pages/Settings/Settings';
 import Login from './pages/Login/Login';
 import AccessDenied from './pages/AccessDenied/AccessDenied';
 
@@ -30,7 +29,6 @@ const AdminRoutes = () => {
         <Route path="orders" element={<Orders />} />
         <Route path="customers" element={<Customers />} />
         <Route path="reports" element={<Reports />} />
-        <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>
   );

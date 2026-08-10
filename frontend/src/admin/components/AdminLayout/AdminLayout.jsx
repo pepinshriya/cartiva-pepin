@@ -6,7 +6,6 @@ import {
   ShoppingCart,
   Users,
   BarChart3,
-  Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -22,7 +21,6 @@ const sidebarLinks = [
   { to: '/admin/orders', label: 'Orders', icon: ShoppingCart },
   { to: '/admin/customers', label: 'Customers', icon: Users },
   { to: '/admin/reports', label: 'Reports', icon: BarChart3 },
-  { to: '/admin/settings', label: 'Settings', icon: Settings },
 ];
 
 const AdminLayout = () => {
