@@ -2,6 +2,17 @@
 
 A fully working local e-commerce backend built with **microservice architecture** using **Node.js**, **Express.js**, and **AWS DynamoDB**.
 
+## Overview
+
+This project is a scalable, distributed e-commerce backend system. It is designed to handle various e-commerce operations such as managing products, handling inventory, processing carts, managing orders, and facilitating payments. Each core business domain is encapsulated in its own microservice, ensuring independent deployment, scaling, and maintainability.
+
+## Features
+
+- **Microservices Architecture**: Five independent services managing specific domains.
+- **RESTful APIs**: Standardized HTTP endpoints for all service operations.
+- **Serverless Database**: Integration with AWS DynamoDB for fast and flexible NoSQL data storage.
+- **CI/CD Integrated**: Automated testing, linting, and deployment pipelines.
+
 ## Architecture
 
 Each microservice runs independently on its own port with its own Express server, database table, and codebase.
@@ -74,6 +85,16 @@ service-name/
 - Node.js 18+
 - AWS account with DynamoDB tables created
 - AWS credentials configured via environment variables or ~/.aws/credentials
+
+## Monitoring, Security, and Code Quality
+
+- **Monitoring & Logging**: Application health and performance can be tracked using standard Node.js monitoring tools. Logs are structured for easy integration with CloudWatch or third-party log aggregators.
+- **Security**:
+  - AWS OIDC integration avoids long-lived static credentials in GitHub.
+  - Basic security best practices are enforced across services (e.g., CORS).
+- **Code Quality (SonarCloud)**:
+  - Automated code analysis via SonarCloud integrated into the CI pipeline.
+  - Quality gates enforce high test coverage (≥ 80%), low duplication (≤ 3%), and 'A' security ratings on new code.
 
 ## CI/CD Pipeline & AWS OIDC Configuration
 
